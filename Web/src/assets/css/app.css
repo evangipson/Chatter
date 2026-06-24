@@ -1,0 +1,11 @@
+.chatter__app {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    height: calc(100vh - (var(--spacing) * 2));
+    width: calc(100vw - (var(--spacing) * 2));
+    max-width: var(--site-width);
+    background: var(--color-ui-darkest);
+    color: var(--color-ui-light);
+    gap: var(--spacing);
+}

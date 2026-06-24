@@ -1,0 +1,20 @@
+:root {
+    color-scheme: light dark;
+    --font-family: Segoe UI, sans-serif;
+    --font-size: 18px;
+    --font-size-small: 12px;
+    --font-size-large: 20px;
+    --site-width: 1280px;
+    --spacing: 24px;
+    --spacing-small: 12px;
+    --color-ui-darkest: #131313;
+    --color-ui-dark: #242424;
+    --color-ui-light: #ededed;
+    --color-ui-grey: #6e6e6e;
+    --color-ui-dark-grey: #383838;
+    --color-accent: #684574;
+    --color-accent-alt: #443a5f;
+    --color-accent-bright: #452e85;
+    --sidebar-min-width: 180px;
+    --sidebar-width: 280px;
+}

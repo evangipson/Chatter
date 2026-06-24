@@ -1,0 +1,72 @@
+.chatter__options {
+    min-width: 1rem;
+    min-height: 1rem;
+    border: none;
+    border-radius: 50%;
+    padding: 0.5rem;
+    background-color: transparent;
+    color: var(--color-ui-grey);
+    font-size: 1rem;
+    line-height: normal;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.chatter__options:hover {
+    background-color: var(--color-ui-dark);
+    color: var(--color-ui-light);
+}
+
+.chatter__options--checkbox {
+    display: none;
+}
+
+.chatter__actions {
+    position: relative;
+}
+
+.chatter__actions-tooltip {
+    display: none;
+    flex-flow: column nowrap;
+    position: absolute;
+    bottom: 64px;
+    left: -50%;
+    background-color: var(--color-ui-dark);
+    flex-flow: column nowrap;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.chatter__options-tooltip {
+    display: none;
+    position: absolute;
+    margin-top: calc(-3rem - 4px - var(--font-size-small));
+    font-size: var(--font-size-small);
+    background-color: var(--color-ui-dark);
+    padding: 2px 4px;
+    border-radius: 8px;
+}
+
+.chatter__action {
+    display: flex;
+    flex-flow: row nowrap;
+    font-size: 14px;
+    min-width: max-content;
+}
+
+.chatter__options:hover + .chatter__options-tooltip {
+    display: flex;
+}
+
+.chatter__options:has(input[checked]) ~ .chatter__options-tooltip {
+    display: none;
+}
+
+.chatter__options:has(input[checked]) ~ .chatter__actions-tooltip {
+    display: flex;
+}

@@ -1,0 +1,16 @@
+.chatter__workspace {
+    display: flex;
+    flex-flow: column nowrap;
+    height: 100vh;
+}
+
+.chatter__workspace-file-area {
+    display: flex;
+    flex-flow: row nowrap;
+    flex: 1;
+}
+
+.chatter__file-explorer {
+    width: var(--sidebar-width);
+    border: 1px solid var(--color-ui-dark);
+}

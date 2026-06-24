@@ -1,0 +1,20 @@
+html, body, p, a {
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-flow: column nowrap;
+    background-color: var(--color-ui-darkest);
+}
+
+.chatter {
+    display: flex;
+    flex-flow: column nowrap;
+    align-self: center;
+    text-align: center;
+    max-width: var(--site-width);
+    padding: var(--spacing);
+    font-family: var(--font-family);
+    color: lightdark(var(--color-ui-dark), var(--color-ui-white));
+}
