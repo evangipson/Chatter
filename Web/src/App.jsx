@@ -6,7 +6,7 @@ import Home from "./pages/HomePage";
 export default function App() {
     return (
         <Routes>
-            <Route index path="/" element={<Home />} />
+            <Route index element={<Home />} />
             <Route path="/workspace/:id" element={<Workspace />} />
         </Routes>
     );

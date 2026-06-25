@@ -8,11 +8,12 @@ export default function Sidebar({ bot, conversations, activeConversationId, onSe
     /**
      * Handles confirming the user wants to delete a conversation, and deleting it.
      * @param {PointerEvent} pointerEvent The event that triggered the deletion.
+     * @param {string} conversation The conversation to delete.
      */
-    const deleteConversation = async (pointerEvent) => {
+    const deleteConversation = async (pointerEvent, conversation) => {
         pointerEvent.stopPropagation();
-        if (window.confirm(`Delete "${c.title}"?`)) {
-            await onDeleteConversation(c.id);
+        if (window.confirm(`Delete "${conversation.title}"?`)) {
+            await onDeleteConversation(conversation.id);
         }
     };
 
@@ -33,8 +34,8 @@ export default function Sidebar({ bot, conversations, activeConversationId, onSe
                             id={conversation.id}
                             text={conversation.title || 'Untitled Chat'}
                             active={activeConversationId == conversation.id}
-                            onSelect={() => onSelectConversation(bot.id)}
-                            onDelete={deleteConversation}
+                            onSelect={() => onSelectConversation(conversation.id)}
+                            onDelete={event => deleteConversation(event, conversation)}
                         />
                     ))}
                 </div>

@@ -21,7 +21,7 @@ export default function Home() {
         const serverConversations = await ConversationAPI.get(botId);
         setConversations(prev => ({...prev, [botId]: serverConversations}));
         return serverConversations;
-    });
+    }, []);
     
     /**
      * Selects a conversation using `id`.
