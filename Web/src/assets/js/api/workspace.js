@@ -6,7 +6,9 @@ export const WorkspaceAPI = {
      * @returns An object returning a `conversationId` and `workspaceId`.
      */
     import: async (file) => {
-        const res = await fetch("/workspaces/import", {method: "POST", body: new FormData().append("file", file)});
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await fetch("/workspaces/import", {method: "POST", body: formData});
         return await res.json();
     },
 
@@ -39,6 +41,6 @@ export const WorkspaceAPI = {
      * @returns `response.ok` when successful.
      */
     save: async (workspaceId, path, content) => {
-        await fetch(`/workspaces/${workspaceId}/file`, {method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ path, content })});
+        await fetch(`/workspaces/${workspaceId}/file`, {method: "PUT", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ path, content })});
     },
 };

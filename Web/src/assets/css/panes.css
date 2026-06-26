@@ -1,5 +1,6 @@
 .chatter__split-pane {
     display: flex;
+    flex-direction: column;
 }
 
 .chatter__split-pane,
@@ -33,7 +34,12 @@
     background-color: var(--color-accent);
 }
 
-.chatter__resizer--horizontal {
+/* horizontal split pane variant styles */
+.chatter__split-pane--horizontal {
+    flex-direction: row;
+}
+
+.chatter__split-pane--horizontal .chatter__resizer {
     cursor: col-resize;
     min-height: 100%;
     min-width: 6px;

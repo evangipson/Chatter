@@ -1,86 +1,71 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import { WorkspaceAPI } from '../api/workspace';
+import { FileService } from '../services/file';
 
-export function useWorkspace(workspaceId) {
+/**
+ * A hook that provides all necessary workspace functionality and is responsible for maintaining it's state.
+ * @param {string} workspaceId The identifier of the workspace to hook into.
+ */
+export const useWorkspace = workspaceId => {
     const [openFiles, setOpenFiles] = useState([]);
     const [activeFile, setActiveFile] = useState(null);
 
-    // // save the files in a debounced fashion when editor has dirty files
-    // useEffect(() => {
-    //     const dirtyFiles = openFiles.filter(f => f.dirty);
-    //     if (!dirtyFiles.length) {
-    //         return;
-    //     }
-    //     const timer = setTimeout(() => dirtyFiles.forEach(f => saveFile(f.path)), 750);
-    //     return () => clearTimeout(timer);
-    // }, [openFiles]);
-
-    // turn on ctrl+s functionality to save files
+    /** turn on ctrl+s save functionality (look into monaco being able to do this also) */
     useEffect(() => {
-        function onKeyDown(e) {
-            if (e.ctrlKey && e.key === "s") {
-                e.preventDefault();
-                if (activeFile) {
-                    saveFile(activeFile);
-                }
+        const onKeyDown = e => {
+            if (!(e.ctrlKey && e.key === 's')) {
+                return;
             }
+            e.preventDefault();
+            activeFile && saveFile(activeFile);
         }
-        window.addEventListener("keydown", onKeyDown);
-        return () => window.removeEventListener("keydown", onKeyDown);
+        window.addEventListener('keydown', onKeyDown);
+        return () => window.removeEventListener('keydown', onKeyDown);
     }, [activeFile, openFiles]);
 
-    // open file
-    async function openFile(path) {
-        const existing = openFiles.find(f => f.path === path);
-        if (existing) {
-            setActiveFile(path);
-            return;
+    /**
+     * Opens a file (using `path`) and sets it as the currenly active file.
+     * @param {string} path The path of the file to open.
+     */
+    const openFile = async path => {
+        /* if there isn't an active file, open the new active file up using `path` */
+        if (!openFiles.find(f => f.path === path)) {
+            const file = await WorkspaceAPI.open(workspaceId, path);
+            setOpenFiles(prev => [...prev, FileService.getFileForEditor(file)]);
         }
-
-        const file = await WorkspaceAPI.open(workspaceId, path);
-        const newFile = {
-            path: file.path || path,
-            name: path.split("\\").pop(),
-            content: file.content,
-            originalContent: file.content,
-            dirty: false,
-            saving: false
-        };
-
-        setOpenFiles(prev => [...prev, newFile]);
         setActiveFile(path);
-    }
+    };
 
-    // update file content (typing in editor)
-    function updateFile(path, content) {
-        setOpenFiles(prev =>
-            prev.map(file => {
-                if (file.path !== path) return file;
-                return {...file, content, dirty: content !== file.originalContent};
-            })
-        );
-    }
+    /**
+     * Updates a file (using `path`) and marks it "dirty" if it's `content` has been updated.
+     * @param {string} path The path of the file to update.
+     * @param {string} content The current content of the file.
+     */
+    const updateFile = (path, content) => setOpenFiles(prev => prev.map(file => file.path !== path
+        ? file
+        : {...file, content, dirty: content !== file.originalContent}));
 
-    // save file
-    async function saveFile(path) {
+    /**
+     * Saves a file (using `path`).
+     * @param {string} path The path of the file to save.
+     */
+    const saveFile = async path => {
         const file = openFiles.find(f => f.path === path);
         if (!file) {
             return;
         }
         setOpenFiles(prev => prev.map(f => f.path === path ? { ...f, saving: true } : f));
         await WorkspaceAPI.save(workspaceId, path, file.content);
-        setOpenFiles(prev =>
-            prev.map(f => {
-                if (f.path !== path) {
-                    return f;
-                }
-                return {...f, saving: false, dirty: false,  originalContent: f.content};
-            })
-        );
-    }
+        setOpenFiles(prev => prev.map(f => f.path !== path
+            ? f
+            : {...f, saving: false, dirty: false, originalContent: f.content}));
+    };
 
-    // close file
-    function closeFile(path) {
+    /**
+     * Closes a file (using `path`).
+     * @param {string} path The path of the file to close.
+     */
+    const closeFile = path => {
         setOpenFiles(prev => {
             const filtered = prev.filter(f => f.path !== path);
             if (activeFile === path) {
@@ -89,16 +74,8 @@ export function useWorkspace(workspaceId) {
             }
             return filtered;
         });
-    }
-
-    return {
-        workspaceId,
-        openFiles,
-        activeFile,
-        openFile,
-        updateFile,
-        saveFile,
-        closeFile,
-        setActiveFile,
     };
+
+    /* give the consumer all desired hook states and functions */
+    return {workspaceId, openFiles, activeFile, openFile, updateFile, saveFile, closeFile, setActiveFile};
 }

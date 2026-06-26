@@ -24,7 +24,7 @@ public static class WorkspaceEndpoints
             var routeGroup = app.MapGroup("/workspaces")
                 .WithTags("Workspaces");
 
-            routeGroup.MapPost("/import", async ([FromForm] IFormFile file, [FromServices] IWorkspaceService workspaceService, [FromServices] IConversationRepository repo) =>
+            routeGroup.MapPost("/import", async (IFormFile file, [FromServices] IWorkspaceService workspaceService, [FromServices] IConversationRepository repo) =>
             {
                 if (file == null || file.Length == 0)
                 {
@@ -51,7 +51,7 @@ public static class WorkspaceEndpoints
                 var workspace = await repo.GetByIdAsync(id);
                 return workspace is null
                     ? Results.NotFound()
-                    : Results.Ok(TreeBuilder.BuildTree(workspace.RootPath, workspace.RootPath));
+                    : Results.Ok(TreeBuilder.BuildTree(workspace.RootPath, workspace.RootPath, workspace.Name));
             }).Produces<object?>(StatusCodes.Status200OK, MediaTypeNames.Application.Json);
 
             routeGroup.MapGet("/{id:guid}/file", async (Guid id, [FromQuery] string path, [FromServices] IWorkspaceRepository repo) =>

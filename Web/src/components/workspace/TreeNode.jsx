@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { getLanguage } from '../../assets/js/services/language';
 import { ChevronIcon } from '../icons/ChevronIcon';
 import LanguageIcon from '../icons/LanguageIcon';
+import '../../assets/css/editor/tree.css';
 
 /** Renders a recursive tree node. */
 export default function TreeNode({node, onOpen, collapsedFolders, isRoot = false, depth, onToggleFolder}) {
@@ -22,7 +23,7 @@ export default function TreeNode({node, onOpen, collapsedFolders, isRoot = false
                 <span>{node.name}</span>
             </div>
             {!isCollapsed && (
-                <div style={{paddingLeft: depth * 8}}>
+                <div style={{paddingLeft: 8}}>
                     {node.children?.map(c => (
                         <TreeNode key={c.path || c.name}
                             node={c}

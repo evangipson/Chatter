@@ -5,6 +5,7 @@ using Domain.Options;
 
 namespace Application.Workspaces;
 
+/// <inheritdoc cref="IWorkspaceService"/>
 public class WorkspaceService(IWorkspaceRepository workspaceRepository, IOptions<WorkspaceSettings> options) : IWorkspaceService
 {
     public async Task<Workspace> CreateAsync(string name)
