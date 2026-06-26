@@ -4,14 +4,16 @@ import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { v4 as uuidv4 } from 'uuid';
+import { GlobalWorkspaceId } from '../../assets/js/constants/workspace';
 import { WaitingChatBubble } from './WaitingChatBubble';
 import { ChatBubble } from './ChatBubble';
 import { ArrowIcon } from '../icons/ArrowIcon';
 import { PlusIcon } from '../icons/PlusIcon';
-import '../../assets/css/chat.css';
 import ChatActions from './ChatActions';
+import general from '../../assets/json/general';
+import '../../assets/css/chat.css';
 
-export default function ChatWindow({bot, conversationId, onConversationUpdated}) {
+export default function ChatWindow({workspaceId = GlobalWorkspaceId, conversationId, onConversationUpdated}) {
     const [isWaitingForFirstToken, setIsWaitingForFirstToken] = useState(false);
     const [isStreaming, setIsStreaming] = useState(false);
     const [messages, setMessages] = useState([]);
@@ -25,7 +27,7 @@ export default function ChatWindow({bot, conversationId, onConversationUpdated})
     const streamingRef = useRef('');
     const stableMessages = useMemo(() => messages.filter(m => m.id !== streamingIndexRef.current), [messages]);
 
-    // fetch greeting based on the specific bot
+    // fetch greeting based on the specific workspace
     useEffect(() => {
         if (!conversationId) {
             return;
@@ -82,7 +84,7 @@ export default function ChatWindow({bot, conversationId, onConversationUpdated})
         reader.readAsDataURL(file);
     };
 
-    /** Handles sending a message from the user and getting the bot's response. */
+    /** Handles sending a message from the user and getting the agent's response. */
     const sendMessageAndGetResponse = async () => {
         // if there is no input to send, early exit
         if (!input.trim()) {
@@ -90,6 +92,7 @@ export default function ChatWindow({bot, conversationId, onConversationUpdated})
         }
 
         // create a message for the user and add a placeholder message for the bot's response
+        const hasMessages = messages.length > 0;
         const userMessage = { id: uuidv4(), role: 'user', text: input };
         const botMessage = { id: uuidv4(), role: 'bot', text: '' };
         setMessages(prev => [...prev, userMessage, botMessage]);
@@ -105,7 +108,9 @@ export default function ChatWindow({bot, conversationId, onConversationUpdated})
 
         try {
             // create a request containing the user's message to send to the API
-            const request = {conversationId, message: input, botId: bot.id, systemPrompt: bot.systemPrompt};
+            const request = hasMessages
+                ? {conversationId, message: input, workspaceId: workspaceId}
+                : {conversationId, message: input, workspaceId: workspaceId, systemPrompt: general.systemPrompt};
 
             // add the image to the request if it's been filled out
             if(!!image?.length) {

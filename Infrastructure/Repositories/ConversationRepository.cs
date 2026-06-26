@@ -9,30 +9,13 @@ namespace Infrastructure.Repositories;
 /// <inheritdoc cref="IConversationRepository"/>
 public class ConversationRepository(ChatDbContext db) : IConversationRepository
 {
-    public async Task<List<ConversationEntity>> GetByBotAsync(string botId) => await db.Conversations
-        .Where(x => x.BotId == botId)
+    public async Task<List<ConversationEntity>> GetByWorkspaceId(Guid workspaceId) => await db.Conversations
+        .Where(x => x.WorkspaceId.Equals(workspaceId))
         .OrderByDescending(x => x.LastUpdatedUtc)
         .ToListAsync();
 
     public async Task<ConversationEntity?> GetAsync(Guid id) => await db.Conversations
         .FirstOrDefaultAsync(x => x.Id == id);
-
-    public async Task<ConversationEntity> CreateAsync(string botId)
-    {
-        ConversationEntity conversation = new()
-        {
-            Id = Guid.NewGuid(),
-            BotId = botId,
-            Title = "New Chat",
-            CreatedUtc = DateTime.UtcNow,
-            LastUpdatedUtc = DateTime.UtcNow
-        };
-
-        db.Conversations.Add(conversation);
-        await db.SaveChangesAsync();
-
-        return conversation;
-    }
 
     public async Task<ConversationEntity> CreateAsync(Guid workspaceId)
     {

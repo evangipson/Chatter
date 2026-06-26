@@ -13,17 +13,19 @@ const baseClass = 'chatter__split-pane';
 const getResizablePaneSize = (isHorizontal, size) => ({minWidth: isHorizontal ? size : '100%', minHeight: !isHorizontal ? size : '100%'});
 
 /** The rendering used to split two components into a resiable side and static side, also includes a resizer. */
-export default function SplitPane({children, direction = 'horizontal', initialSize = 300, min = 150, max = 600, storageKey, className}) {
+export default function SplitPane({children, direction = 'horizontal', resizeSecond = false, initialSize = 300, min = 150, max = 600, storageKey, className}) {
     const isHorizontal = direction === 'horizontal';
     const {size, beginResize} = useResize(isHorizontal, initialSize, min, max, storageKey);
     const wrapperClass = [baseClass, !!isHorizontal && `${baseClass}--horizontal`, !!className?.length && className].filter(x => x).join(' ');
     const panes = React.Children.toArray(children);
+    const firstClass = resizeSecond ? 'chatter__split-pane-priority' : 'chatter__split-pane-resizable';
+    const secondClass = resizeSecond ? 'chatter__split-pane-resizable' : 'chatter__split-pane-priority';
 
     return (
         <div className={wrapperClass}>
-            <div className='chatter__split-pane-resizable' style={getResizablePaneSize(isHorizontal, size)}>{panes[0]}</div>
+            <div className={firstClass} style={getResizablePaneSize(isHorizontal, size)}>{panes[0]}</div>
             <div className='chatter__resizer' onMouseDown={beginResize} />
-            <div className='chatter__split-pane-priority'>{panes[1]}</div>
+            <div className={secondClass}>{panes[1]}</div>
         </div>
     );
 }

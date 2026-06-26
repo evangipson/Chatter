@@ -1,11 +1,15 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.AI;
+using OllamaSharp;
 using API.Endpoints;
 using Application.Chat;
 using Application.Context;
 using Application.Conversation;
 using Application.Repositories;
 using Application.Speak;
+using Application.Tool;
 using Application.Workspaces;
+using Domain.Constants;
 using Domain.Options;
 using Infrastructure.Contexts;
 using Infrastructure.Repositories;
@@ -23,11 +27,24 @@ builder.Services.AddOptions<WorkspaceSettings>();
 builder.Services.AddDbContext<ChatDbContext>(options => options.UseSqlite("Data Source=chat.db"))
     .AddScoped<IConversationRepository, ConversationRepository>()
     .AddScoped<IWorkspaceRepository, WorkspaceRepository>()
+    .AddScoped<IWorkspaceFileSystem, WorkspaceFileSystem>()
     .AddScoped<IConversationService, ConversationService>()
     .AddScoped<IWorkspaceService, WorkspaceService>()
     .AddScoped<ISpeakingService, SpeakingService>()
     .AddScoped<IContextFactory, ContextFactory>()
     .AddScoped<IChatService, ChatService>()
+    .AddScoped<ListFilesTool>()
+    .AddScoped<ReadFileTool>()
+    .AddScoped<WriteFileTool>()
+    .AddScoped<SearchFilesTool>()
+    .AddScoped<SearchTextTool>()
+    .AddScoped<RunCommandTool>()
+    .AddScoped<ToolRegistry>()
+    .AddSingleton<IChatClient>(_ => new OllamaApiClient(new HttpClient()
+    {
+        BaseAddress = new Uri(LanguageModelConstants.LanguageModelAddress),
+        Timeout = TimeSpan.FromMinutes(20)
+    }, LanguageModelConstants.Qwen36Model))
     .AddOpenApi();
 
 // build the web application

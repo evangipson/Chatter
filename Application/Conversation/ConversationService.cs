@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using Microsoft.Extensions.AI;
-using Application.Clients;
 using Application.Repositories;
 using Domain.Constants;
 using Domain.Models;
@@ -8,7 +7,7 @@ using Domain.Models;
 namespace Application.Conversation;
 
 /// <inheritdoc cref="IConversationService"/>
-public class ConversationService(IConversationRepository conversationRepository) : IConversationService
+public class ConversationService(IChatClient chatClient, IConversationRepository conversationRepository) : IConversationService
 {
     private static readonly ChatMessage TitlePrompt = new(ChatRole.System, ChatConstants.TitlePrompt);
 
@@ -78,7 +77,7 @@ public class ConversationService(IConversationRepository conversationRepository)
         List<ChatMessage> titleMessages = messages.Count >= ConversationConstants.TitleWindowSize
             ? [.. messages.Take(ConversationConstants.TitleWindowSize)]
             : [.. messages];
-        var titleResponse = await ChatClients.Client.GetResponseAsync([TitlePrompt, ..titleMessages]);
+        var titleResponse = await chatClient.GetResponseAsync([TitlePrompt, ..titleMessages]);
         var title = titleResponse.Text?.Trim() ?? "Untitled Chat";
 
         // update the title of the conversation and persist the new title in the conversation repository
@@ -107,7 +106,7 @@ public class ConversationService(IConversationRepository conversationRepository)
         await conversationRepository.UpdateSummaryAsync(conversationId, summary);
     }
 
-    private static async Task<string> GenerateSummaryAsync(List<ChatMessage> messages)
+    private async Task<string> GenerateSummaryAsync(List<ChatMessage> messages)
     {
         // build a prompt to generate a summary
         var transcript = string.Join("\n", messages.Select(m => $"{m.Role}: {m.Text}"));
@@ -115,7 +114,7 @@ public class ConversationService(IConversationRepository conversationRepository)
 
         // generate a summary from the chat client
         StringBuilder summaryBuffer = new();
-        await foreach (var chunk in ChatClients.Client.GetStreamingResponseAsync(prompt))
+        await foreach (var chunk in chatClient.GetStreamingResponseAsync(prompt))
         {
             summaryBuffer.Append(chunk.Text);
         }

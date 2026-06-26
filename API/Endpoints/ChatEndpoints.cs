@@ -35,7 +35,7 @@ internal static class ChatEndpoints
                     await context.Response.WriteAsync(token);
                     await context.Response.Body.FlushAsync();
                 }
-            }).Produces<IAsyncEnumerable<string>>(StatusCodes.Status200OK, MediaTypeNames.Text.Plain).WithRequestTimeout(TimeSpan.FromMinutes(5));
+            }).Produces<IAsyncEnumerable<string>>(StatusCodes.Status200OK, MediaTypeNames.Text.Plain).WithRequestTimeout(TimeSpan.FromMinutes(10));
 
             return app;
         }

@@ -36,4 +36,6 @@ public class ContextFactory(IConversationRepository conversationRepository) : IC
 
         return [..context];
     }
+
+    public ToolContext CreateToolContext(Guid conversationId, Guid workspaceId) => new(workspaceId, conversationId);
 }

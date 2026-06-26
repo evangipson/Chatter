@@ -91,15 +91,6 @@ public static class WorkspaceEndpoints
                 return Results.Ok();
             }).Produces<IResult>(StatusCodes.Status200OK, MediaTypeNames.Application.Json);
 
-            // TODO: retire this endpoint when workspaces no longer need debugging
-            routeGroup.MapGet("/{id}/debug", async ([FromRoute] Guid id, [FromServices] IWorkspaceRepository repo) =>
-            {
-                var workspace = await repo.GetByIdAsync(id);
-                return workspace is null
-                    ? Results.NotFound()
-                    : Results.Ok(new {workspace.Id, workspace.RootPath, Files = Directory.GetFiles(workspace.RootPath, "*", SearchOption.AllDirectories)});
-            }).Produces<object>(StatusCodes.Status200OK, MediaTypeNames.Application.Json);
-
             return app;
         }
     }

@@ -1,10 +1,11 @@
 import { BranchIcon } from '../icons/BranchIcon';
+import { GlobalWorkspaceId } from '../../assets/js/constants/workspace';
 import ImportWorkspace from '../workspace/ImportWorkspace';
 import SidebarItem from './SidebarItem';
 import '../../assets/css/sidebar.css';
 
 /** Renders a sidebar containing a list of conversations. */
-export default function Sidebar({ bot, conversations, activeConversationId, onSelectConversation, onNewConversation, onDeleteConversation }) {
+export default function Sidebar({ conversations, activeConversationId, onSelectConversation, onNewConversation, onDeleteConversation }) {
     /**
      * Handles confirming the user wants to delete a conversation, and deleting it.
      * @param {PointerEvent} pointerEvent The event that triggered the deletion.
@@ -26,20 +27,18 @@ export default function Sidebar({ bot, conversations, activeConversationId, onSe
                 </div>
                 <ImportWorkspace />
             </div>
-            {bot && (
-                <div className='chatter__sidebar-section'>
-                    <div className='chatter__sidebar-title'>Conversations</div>
-                    {(conversations[bot.id] || []).map(conversation => (
-                        <SidebarItem
-                            id={conversation.id}
-                            text={conversation.title || 'Untitled Chat'}
-                            active={activeConversationId == conversation.id}
-                            onSelect={() => onSelectConversation(conversation.id)}
-                            onDelete={event => deleteConversation(event, conversation)}
-                        />
-                    ))}
-                </div>
-            )}
+            <div className='chatter__sidebar-section'>
+                <div className='chatter__sidebar-title'>Conversations</div>
+                {(conversations[GlobalWorkspaceId] || []).map(conversation => (
+                    <SidebarItem
+                        id={conversation.id}
+                        text={conversation.title || 'Untitled Chat'}
+                        active={activeConversationId == conversation.id}
+                        onSelect={() => onSelectConversation(conversation.id)}
+                        onDelete={event => deleteConversation(event, conversation)}
+                    />
+                ))}
+            </div>
         </div>
     );
 }

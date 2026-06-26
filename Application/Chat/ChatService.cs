@@ -2,6 +2,7 @@
 using Application.Context;
 using Application.Conversation;
 using Application.Speak;
+using Domain.Constants;
 using Domain.Models;
 
 namespace Application.Chat;
@@ -23,9 +24,12 @@ public class ChatService(IConversationService conversationService, IContextFacto
         // create an optimized conversation context
         var context = await contextFactory.CreateAsync(request.ConversationId, request);
 
+        // create a fresh tool context
+        var toolContext = contextFactory.CreateToolContext(request.ConversationId, request.WorkspaceId.GetValueOrDefault(WorkspaceConstants.GlobalWorkspaceId));
+
         // stream a response to the user's message
         StringBuilder responseBuffer = new();
-        await foreach (var token in speakingService.StreamAndSpeakAsync(context, speak))
+        await foreach (var token in speakingService.StreamAndSpeakAsync(toolContext, context, speak))
         {
             responseBuffer.Append(token);
             yield return token;

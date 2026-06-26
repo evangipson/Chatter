@@ -4,11 +4,9 @@ public class ConversationEntity
 {
     public Guid Id { get; set; }
 
-    public Guid? WorkspaceId { get; set; }
+    public Guid WorkspaceId { get; set; }
 
-    public string BotId { get; set; } = "";
-
-    public Workspace? Workspace { get; set; }
+    public Workspace Workspace { get; set; } = null!;
 
     public string Title { get; set; } = "New Chat";
 

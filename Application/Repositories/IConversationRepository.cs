@@ -9,11 +9,11 @@ namespace Application.Repositories;
 public interface IConversationRepository
 {
     /// <summary>
-    /// Gets a collection of conversations for a bot.
+    /// Gets a collection of conversations for a workspace.
     /// </summary>
-    /// <param name="botId">The bot identifier.</param>
+    /// <param name="workspaceId">The workspace identifier.</param>
     /// <returns>An awaitable task containing a collection of conversations.</returns>
-    Task<List<ConversationEntity>> GetByBotAsync(string botId);
+    Task<List<ConversationEntity>> GetByWorkspaceId(Guid workspaceId);
 
     /// <summary>
     /// Gets a conversation.
@@ -21,13 +21,6 @@ public interface IConversationRepository
     /// <param name="id">The conversation identifier.</param>
     /// <returns>An awaitable task that contains the conversation, defaults to <see langword="null"/>.</returns>
     Task<ConversationEntity?> GetAsync(Guid id);
-
-    /// <summary>
-    /// Creates a conversation for a bot.
-    /// </summary>
-    /// <param name="botId">The bot identifier.</param>
-    /// <returns>An awaitatble task that contains the conversation.</returns>
-    Task<ConversationEntity> CreateAsync(string botId);
 
     /// <summary>
     /// Creates a conversation for a workspace.

@@ -15,6 +15,10 @@
     scroll-behavior: smooth;
 }
 
+.chatter__split-pane-priority ~ .chatter__split-pane-resizable {
+    flex: 1;
+}
+
 .chatter__split-pane-priority {
     display: flex;
     flex-flow: column nowrap;
@@ -39,7 +43,7 @@
     flex-direction: row;
 }
 
-.chatter__split-pane--horizontal .chatter__resizer {
+.chatter__split-pane--horizontal > .chatter__resizer {
     cursor: col-resize;
     min-height: 100%;
     min-width: 6px;

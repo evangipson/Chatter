@@ -1,22 +1,25 @@
 ﻿using System.Text;
+using Application.Clients;
+using Application.Tool;
+using Domain.Constants;
+using Domain.Models;
 using Microsoft.Extensions.AI;
 using NAudio.Wave;
-using Application.Clients;
-using Domain.Constants;
 
 namespace Application.Speak;
 
 /// <inheritdoc cref="ISpeakingService"/>
-public class SpeakingService : ISpeakingService
+public class SpeakingService(IChatClient chatClient, ToolRegistry toolRegistry) : ISpeakingService
 {
     private static readonly WaveFormat _waveFormat = new(SpeakingConstants.WaveRate, SpeakingConstants.WaveBits, SpeakingConstants.WaveChannels);
 
-    public async IAsyncEnumerable<string> StreamAndSpeakAsync(List<ChatMessage> history, bool speak)
+    public async IAsyncEnumerable<string> StreamAndSpeakAsync(ToolContext toolContext, List<ChatMessage> history, bool speak)
     {
         // start streaming the response from the chat client
         StringBuilder responseBuffer = new();
         StringBuilder speechBuffer = new();
-        await foreach (var chatResponse in ChatClients.Client.GetStreamingResponseAsync(history))
+        ChatOptions options = new() { Tools = [..toolRegistry.CreateFunctions(toolContext)] };
+        await foreach (var chatResponse in chatClient.GetStreamingResponseAsync(history, options))
         {
             // get the next token from the client
             string token = chatResponse.Text ?? string.Empty;

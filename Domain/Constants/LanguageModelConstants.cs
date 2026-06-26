@@ -10,7 +10,7 @@ public static class LanguageModelConstants
 
     public const string BModel = "3b";
 
-    public const string Qwen36Model = "qwen3.6:35b";
+    public const string Qwen36_35bModel = "qwen3.6:35b";
 
-    public const string HereticModel = "hf.co/HauhauCS/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive:Q6_K_P";
+    public const string Qwen36Model = "qwen3.6";
 }

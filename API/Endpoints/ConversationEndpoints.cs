@@ -22,10 +22,10 @@ internal static class ConversationEndpoints
             var routeGroup = app.MapGroup("/conversations")
                 .WithTags("Conversations");
 
-            routeGroup.MapGet("/", ([FromQuery] string botId, [FromServices] IConversationRepository repo) => repo.GetByBotAsync(botId))
+            routeGroup.MapGet("/{id:guid}", ([FromRoute] string id, [FromServices] IConversationRepository repo) => repo.GetByWorkspaceId(Guid.Parse(id)))
                 .Produces<List<ConversationEntity>>(StatusCodes.Status200OK, MediaTypeNames.Application.Json);
 
-            routeGroup.MapPost("/", ([FromBody] CreateConversationRequest request, [FromServices] IConversationRepository repo) => repo.CreateAsync(request.BotId))
+            routeGroup.MapPost("/", ([FromBody] CreateChatRequest request, [FromServices] IConversationRepository repo) => repo.CreateAsync(Guid.Parse(request.Id)))
                 .Produces<ConversationEntity>(StatusCodes.Status200OK, MediaTypeNames.Application.Json);
 
             routeGroup.MapDelete("/{conversationId:guid}", (Guid conversationId, [FromServices] IConversationRepository repo) => repo.DeleteAsync(conversationId).OkAsync())
@@ -33,5 +33,10 @@ internal static class ConversationEndpoints
 
             return app;
         }
+    }
+
+    public sealed class CreateChatRequest
+    {
+        public string Id { get; set; } = string.Empty;
     }
 }
