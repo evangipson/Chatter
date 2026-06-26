@@ -21,9 +21,12 @@ export default function EditorArea({workspace}) {
         <div className='chatter__editor-area'>
             <Tabs files={workspace.openFiles} activeFile={workspace.activeFile} workspace={workspace} />
             <div className='chatter__editor'>
-                {!!active
-                    ? (<Editor theme='vs-dark' language={language} value={active?.content ?? ''} onChange={value => !!active && workspace.updateFile(active.path, value || "")} />)
-                    : (<StartPage />)}
+                {!!active ? (<Editor theme='vs-dark'
+                    language={language}
+                    value={active?.content ?? ''}
+                    options={{minimap: {enabled: false}}}
+                    onChange={value => !!active && workspace.updateFile(active.path, value || "")}
+                />) : (<StartPage />)}
             </div>
         </div>
     );

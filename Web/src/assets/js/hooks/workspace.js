@@ -5,15 +5,15 @@ export function useWorkspace(workspaceId) {
     const [openFiles, setOpenFiles] = useState([]);
     const [activeFile, setActiveFile] = useState(null);
 
-    // save the files in a debounced fashion when editor has dirty files
-    useEffect(() => {
-        const dirtyFiles = openFiles.filter(f => f.dirty);
-        if (!dirtyFiles.length) {
-            return;
-        }
-        const timer = setTimeout(() => dirtyFiles.forEach(f => saveFile(f.path)), 750);
-        return () => clearTimeout(timer);
-    }, [openFiles]);
+    // // save the files in a debounced fashion when editor has dirty files
+    // useEffect(() => {
+    //     const dirtyFiles = openFiles.filter(f => f.dirty);
+    //     if (!dirtyFiles.length) {
+    //         return;
+    //     }
+    //     const timer = setTimeout(() => dirtyFiles.forEach(f => saveFile(f.path)), 750);
+    //     return () => clearTimeout(timer);
+    // }, [openFiles]);
 
     // turn on ctrl+s functionality to save files
     useEffect(() => {

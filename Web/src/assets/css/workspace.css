@@ -7,20 +7,17 @@
 }
 
 .chatter__file-explorer {
-    width: var(--sidebar-width);
-    border: 1px solid var(--color-ui-dark);
+    border-right: 1px solid var(--color-ui-dark);
     background-color: var(--color-ui-darkest);
     min-height: 100%;
     max-height: 100%;
-    overflow-y: auto;
-    scroll-behavior: smooth;
+    box-sizing: border-box;
 }
 
 .chatter__workspace-editor {
     display: flex;
     flex-flow: column nowrap;
     flex: 1;
-    font-family: monospace;
     min-width: calc(100% - var(--sidebar-width));
 }
 
@@ -34,10 +31,37 @@
 }
 
 .chatter__tree-item {
+    align-items: center;
     cursor: pointer;
     user-select: none;
     color: var(--color-ui-light);
     font-size: var(--font-size-medium);
     padding-top: 6px;
     white-space: nowrap;
+    line-height: 1;
+}
+
+.chatter__tree-item--active {
+    font-weight: bold;
+}
+
+.chatter__tree-item svg {
+    display: inline-flex;
+    height: 16px;
+    width: 16px;
+}
+
+.chatter__tree-chevron,
+.chatter__file-icon {
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+.chatter__tree-chevron svg {
+    rotate: 90deg;
+    transition: rotate 0.175s ease;
+}
+
+.chatter__tree-item--collapsed .chatter__tree-chevron svg {
+    rotate: 0deg;
 }

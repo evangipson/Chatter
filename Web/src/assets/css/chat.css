@@ -173,22 +173,6 @@
     transform: none;
 }
 
-.chatter__icon {
-    display: flex;
-    color: inherit;
-    width: var(--font-size-large);
-    height: var(--font-size-large);
-}
-
-.chatter__icon path {
-    fill: currentColor;
-}
-
-.chatter__icon--horizontal-flip {
-    display: inline-flex;
-    rotate: 180deg;
-}
-
 .chatter__back-button {
     display: flex;
     flex-flow: row nowrap;

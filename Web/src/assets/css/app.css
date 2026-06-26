@@ -14,3 +14,14 @@
     max-width: unset;
     justify-content: flex-start;
 }
+
+.chatter__icon {
+    display: flex;
+    width: var(--font-size-large);
+    height: var(--font-size-large);
+}
+
+.chatter__icon--horizontal-flip {
+    display: inline-flex;
+    rotate: 180deg;
+}

@@ -1,4 +1,5 @@
 import { CloseIcon } from '../icons/CloseIcon';
+import LanguageIcon from '../icons/LanguageIcon';
 import '../../assets/css/editor/tab.css';
 
 /** The rendering for a tab in the editor. */
@@ -17,6 +18,7 @@ export default function Tabs({files, activeFile, workspace}) {
         <div className='chatter__tabs'>
             {files.map(file => {
                 return (<div className={`chatter__tab${file.path === activeFile ? ' chatter__tab--active' : ''}`} key={file.path}>
+                    <span className='chatter__tab-icon'><LanguageIcon path={file.path} /></span>
                     <span className='chatter__tab-name' onClick={() => workspace.setActiveFile(file.path)}>{file.dirty ? '●' : ''} {file.name}</span>
                     <span className='chatter__tab-close' onClick={event => onCloseClick(event, file)}><CloseIcon /></span>
                 </div>)

@@ -4,6 +4,7 @@ import { WorkspaceAPI } from "../assets/js/api/workspace";
 import { useWorkspace } from '../assets/js/hooks/workspace';
 import EditorArea from '../components/editor/EditorArea';
 import FileExplorer from '../components/workspace/FileExplorer';
+import SplitPane from '../components/panes/SplitPane';
 import '../assets/css/workspace.css';
 
 /** Renders a page for a workspace. */
@@ -24,13 +25,13 @@ export default function Workspace() {
     }
 
     return (
-        <div className='chatter__workspace'>
+        <SplitPane className='chatter__workspace' initialSize={180} min={120} max={400} storageKey='workspace-sidebar'>
             <div className='chatter__file-explorer'>
                 <FileExplorer workspaceId={id} onOpenFile={workspace.openFile} collapsedFolders={collapsedFolders} onToggleFolder={toggleFolder} />
             </div>
             <div className='chatter__workspace-editor'>
                 <EditorArea workspace={workspace} />
             </div>
-        </div>
+        </SplitPane>
     );
 }

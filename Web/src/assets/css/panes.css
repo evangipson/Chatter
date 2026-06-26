@@ -1,0 +1,40 @@
+.chatter__split-pane {
+    display: flex;
+}
+
+.chatter__split-pane,
+.chatter__split-pane-priority {
+    flex: 1;
+    overflow: hidden;
+}
+
+.chatter__split-pane-resizable {
+    flex: 0;
+    overflow: auto;
+    scroll-behavior: smooth;
+}
+
+.chatter__split-pane-priority {
+    display: flex;
+    flex-flow: column nowrap;
+}
+
+.chatter__resizer {
+    flex-shrink: 0;
+    cursor: row-resize;
+    min-width: 100%;
+    min-height: 6px;
+    background-color: transparent;
+    overflow: hidden;
+    transition: background-color 0.175s ease-in-out;
+}
+
+.chatter__resizer:hover {
+    background-color: var(--color-accent);
+}
+
+.chatter__resizer--horizontal {
+    cursor: col-resize;
+    min-height: 100%;
+    min-width: 6px;
+}

@@ -10,6 +10,7 @@
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-between;
+    position: relative;
     background-color: var(--color-ui-darkest);
     border-right: 1px solid var(--color-ui-dark);
 }
@@ -23,9 +24,25 @@
     cursor: pointer;
 }
 
+.chatter__tab-icon {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    margin-top: 13px;
+    margin-left: 5px;
+    max-height: 20px;
+    max-width: 20px;
+    pointer-events: none;
+    opacity: 0.33;
+    transition: opacity 0.175s ease;
+}
+
 .chatter__tab-name {
     flex: 1;
-    padding: var(--spacing-small) calc(var(--spacing-small) * 1.5) var(--spacing-small) var(--spacing-small);
+    font-size: var(--font-size-medium);
+    color: var(--color-ui-grey);
+    padding: var(--spacing-small) calc(var(--spacing-small) * 1.5) var(--spacing-small) calc(var(--spacing) * 1.25);
+    transition: color 0.175s ease;
 }
 
 .chatter__tab-close {
@@ -33,7 +50,24 @@
     justify-content: center;
     align-items: center;
     flex: 0;
+    color: var(--color-ui-grey);
     padding: var(--spacing-small) var(--spacing-small) var(--spacing-small) calc(var(--spacing-small) * 0.5);
-    max-width: 13px;
-    max-height: 13px;
+    max-height: 20px;
+    max-width: 20px;
+    opacity: 0.33;
+    transition: opacity 0.175s ease;
+}
+
+.chatter__tab-close:hover {
+    opacity: 0.8;
+}
+
+.chatter__tab--active .chatter__tab-name {
+    color: var(--color-ui-light);
+}
+
+.chatter__tab--active .chatter__tab-icon,
+.chatter__tab--active .chatter__tab-close,
+.chatter__tab--active .chatter__tab-close:hover {
+    opacity: 1.0;
 }
