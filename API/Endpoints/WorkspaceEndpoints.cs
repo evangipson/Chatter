@@ -51,7 +51,7 @@ public static class WorkspaceEndpoints
                 var workspace = await repo.GetByIdAsync(id);
                 return workspace is null
                     ? Results.NotFound()
-                    : Results.Ok(workspace.RootPath.BuildTree());
+                    : Results.Ok(TreeBuilder.BuildTree(workspace.RootPath, workspace.RootPath));
             }).Produces<object?>(StatusCodes.Status200OK, MediaTypeNames.Application.Json);
 
             routeGroup.MapGet("/{id:guid}/file", async (Guid id, [FromQuery] string path, [FromServices] IWorkspaceRepository repo) =>

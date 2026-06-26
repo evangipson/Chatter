@@ -25,8 +25,6 @@
     flex: 1;
     overflow-y: auto;
     padding-right: var(--spacing-small);
-    scrollbar-color: var(--color-ui-grey) transparent;
-    scrollbar-width: thin;
     scroll-behavior: smooth;
     box-sizing: border-box;
 }
@@ -127,8 +125,6 @@
     font-size: var(--font-size-large);
     line-height: 1.5;
     overflow-y: auto;
-    scrollbar-color: var(--color-ui-grey) transparent;
-    scrollbar-width: thin;
     scroll-behavior: smooth;
 }
 
@@ -205,4 +201,8 @@
 .chatter__composer:first-child {
     margin-top: 50vh;
     justify-content: center;
+}
+
+.chatter__container:has(.chatter__workspace) {
+    max-width: unset;
 }

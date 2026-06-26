@@ -1,43 +1,35 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import FileExplorer from '../components/workspace/FileExplorer';
 import { WorkspaceAPI } from "../assets/js/api/workspace";
+import { useWorkspace } from '../assets/js/hooks/workspace';
+import EditorArea from '../components/editor/EditorArea';
+import FileExplorer from '../components/workspace/FileExplorer';
 import '../assets/css/workspace.css';
 
 /** Renders a page for a workspace. */
 export default function Workspace() {
-    const [openFile, setOpenFile] = useState(null);
-    const [content, setContent] = useState("");
+    const [collapsedFolders, setCollapsedFolders] = useState(() => ({}));
     const {id} = useParams();
+    const workspace = useWorkspace(id);
 
-    const handleOpen = async (path) => {
-        const file = await WorkspaceAPI.open(id, path);
-        setOpenFile(file.path);
-        setContent(file.content);
-    };
-
-    const handleSave = async () => {
-        if (!openFile) {
-            return;
-        }
-        await WorkspaceAPI.save(id, openFile, content);
+    const toggleFolder = path => {
+        setCollapsedFolders(prev => {
+            const currentlyCollapsed = prev[path] ?? true;
+            return {...prev, [path]: !currentlyCollapsed};
+        });
     };
 
     if (!id) {
-        return <div><p>No workspace selected</p></div>;
+        return (<div><p>No workspace selected</p></div>);
     }
 
     return (
         <div className='chatter__workspace'>
-            <h1>Workspace {id}</h1>
-            <div className='chatter__workspace-file-area'>
-                <div className='chatter__file-explorer'>
-                    <FileExplorer workspaceId={id} onOpenFile={handleOpen}/>
-                </div>
-                <div style={{ flex: 1 }}>
-                    <textarea style={{ width: "100%", height: "90%" }} value={content} onChange={(e) => setContent(e.target.value)}/>
-                    <button onClick={handleSave}>Save</button>
-                </div>
+            <div className='chatter__file-explorer'>
+                <FileExplorer workspaceId={id} onOpenFile={workspace.openFile} collapsedFolders={collapsedFolders} onToggleFolder={toggleFolder} />
+            </div>
+            <div className='chatter__workspace-editor'>
+                <EditorArea workspace={workspace} />
             </div>
         </div>
     );

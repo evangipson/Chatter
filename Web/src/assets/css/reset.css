@@ -8,6 +8,12 @@ body {
     background-color: var(--color-ui-darkest);
 }
 
+/* set scrollbar style for all scrollable elements */
+* {
+    scrollbar-color: var(--color-ui-grey) transparent;
+    scrollbar-width: thin;
+}
+
 .chatter {
     display: flex;
     flex-flow: column nowrap;
@@ -17,4 +23,10 @@ body {
     padding: var(--spacing);
     font-family: var(--font-family);
     color: lightdark(var(--color-ui-dark), var(--color-ui-white));
+}
+
+.chatter:has(.chatter__workspace) {
+    max-width: unset;
+    width: 100%;
+    padding: 0;
 }

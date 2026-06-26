@@ -9,3 +9,8 @@
     color: var(--color-ui-light);
     gap: var(--spacing);
 }
+
+.chatter_app:has(.chatter__workspace) {
+    max-width: unset;
+    justify-content: flex-start;
+}

@@ -1,0 +1,39 @@
+.chatter__tabs {
+    display: flex;
+}
+
+.chatter__tabs:has(.chatter__tab--active) {
+    border-bottom: 1px solid var(--color-ui-dark);
+}
+
+.chatter__tab {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    background-color: var(--color-ui-darkest);
+    border-right: 1px solid var(--color-ui-dark);
+}
+
+.chatter__tab--active {
+    background-color: var(--color-ui-dark);
+}
+
+.chatter__tab-name,
+.chatter__tab-close {
+    cursor: pointer;
+}
+
+.chatter__tab-name {
+    flex: 1;
+    padding: var(--spacing-small) calc(var(--spacing-small) * 1.5) var(--spacing-small) var(--spacing-small);
+}
+
+.chatter__tab-close {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 0;
+    padding: var(--spacing-small) var(--spacing-small) var(--spacing-small) calc(var(--spacing-small) * 0.5);
+    max-width: 13px;
+    max-height: 13px;
+}

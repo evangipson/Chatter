@@ -1,16 +1,43 @@
 .chatter__workspace {
     display: flex;
-    flex-flow: column nowrap;
-    height: 100vh;
-}
-
-.chatter__workspace-file-area {
-    display: flex;
     flex-flow: row nowrap;
     flex: 1;
+    min-height: 100vh;
+    max-height: 100vh;
 }
 
 .chatter__file-explorer {
     width: var(--sidebar-width);
     border: 1px solid var(--color-ui-dark);
+    background-color: var(--color-ui-darkest);
+    min-height: 100%;
+    max-height: 100%;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+}
+
+.chatter__workspace-editor {
+    display: flex;
+    flex-flow: column nowrap;
+    flex: 1;
+    font-family: monospace;
+    min-width: calc(100% - var(--sidebar-width));
+}
+
+.chatter__tree {
+    display: flex;
+    flex-flow: column nowrap;
+    padding: var(--spacing-small) 2px;
+    text-align: left;
+    min-height: 100%;
+    box-sizing: border-box;
+}
+
+.chatter__tree-item {
+    cursor: pointer;
+    user-select: none;
+    color: var(--color-ui-light);
+    font-size: var(--font-size-medium);
+    padding-top: 6px;
+    white-space: nowrap;
 }
