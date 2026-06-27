@@ -12,15 +12,28 @@ An artificial intelligence agent with continually improving context and sandboxe
 ![A screenshot of Chatter's chat interface](./assets/img/chat-interface.png)
 </div>
 </div>
-<div style='display:flex;flex-flow:row nowrap;gap:16px;max-width:1100px;'>
-<div style='display:flex;max-width:540px;border-radius:8px;overflow:hidden;'>
 
-![A screenshot of Chatter's code editor](./assets/img/code-editor.png)
-</div>
+<div style='display:flex;flex-flow:row-reverse nowrap;gap:16px;max-width:1100px;'>
 <div style='flex:1;align-self:center'>
     <h1>Code Editor</h1>
     <p>Chatter uses the <a href="https://microsoft.github.io/monaco-editor/">Monaco Editor</a> to give that familiar editing experience out of the box.</p>
     <p>Get started by uploading an archive of a solution, or ask Chatter to build an app.</p>
+</div>
+<div style='display:flex;max-width:540px;border-radius:8px;overflow:hidden;'>
+
+![A screenshot of Chatter's code editor](./assets/img/code-editor.png)
+</div>
+</div>
+
+<div style='display:flex;flex-flow:row nowrap;gap:16px;max-width:1100px;min-height:fit-content;'>
+<div style='flex:1;align-self:center'>
+    <h1>Code + Chat</h1>
+    <p>Chatter can help you with any application.</p>
+    <p>You get full context of the entire codebase for every chat.</p>
+</div>
+<div style='display:flex;max-width:580px;border-radius:8px;overflow:hidden;'>
+
+![A screenshot of Chatter's chat interface within the code editor](./assets/img/code-editor-with-chat.png)
 </div>
 </div>
 
