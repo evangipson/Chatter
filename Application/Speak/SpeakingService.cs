@@ -1,38 +1,37 @@
 ﻿using System.Text;
-using Application.Clients;
-using Application.Tool;
-using Domain.Constants;
-using Domain.Models;
 using Microsoft.Extensions.AI;
 using NAudio.Wave;
+using Application.Agent;
+using Application.Clients;
+using Domain.Constants;
+using Domain.Models;
 
 namespace Application.Speak;
 
 /// <inheritdoc cref="ISpeakingService"/>
-public class SpeakingService(IChatClient chatClient, ToolRegistry toolRegistry) : ISpeakingService
+public class SpeakingService(IAgentRunner agentRunner) : ISpeakingService
 {
     private static readonly WaveFormat _waveFormat = new(SpeakingConstants.WaveRate, SpeakingConstants.WaveBits, SpeakingConstants.WaveChannels);
 
     public async IAsyncEnumerable<string> StreamAndSpeakAsync(ToolContext toolContext, List<ChatMessage> history, bool speak)
     {
         // start streaming the response from the chat client
-        StringBuilder responseBuffer = new();
         StringBuilder speechBuffer = new();
-        ChatOptions options = new() { Tools = [..toolRegistry.CreateFunctions(toolContext)] };
-        await foreach (var chatResponse in chatClient.GetStreamingResponseAsync(history, options))
-        {
-            // get the next token from the client
-            string token = chatResponse.Text ?? string.Empty;
-            responseBuffer.Append(token);
 
-            // return the token
-            yield return token;
+        // get the agent's response from running the toolchain
+        var agentResponse = await agentRunner.RunAsync(toolContext, history);
+
+        // get the response from the chat client
+        foreach (char c in agentResponse.Response)
+        {
+            // return the character from the response
+            yield return c.ToString();
 
             // if this is a speaking response, generate text-to-speech audio
             if (speak)
             {
                 // append the token to the speech buffer
-                speechBuffer.Append(token);
+                speechBuffer.Append(c);
                 var currentText = speechBuffer.ToString();
 
                 // find if there's any complete sentence punctuation in our speech buffer

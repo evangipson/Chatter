@@ -1,15 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
-using OllamaSharp;
-using API.Endpoints;
+using API.Extensions;
+using Application.Agent;
 using Application.Chat;
+using Application.Clients;
 using Application.Context;
 using Application.Conversation;
 using Application.Repositories;
 using Application.Speak;
 using Application.Tool;
 using Application.Workspaces;
-using Domain.Constants;
 using Domain.Options;
 using Infrastructure.Contexts;
 using Infrastructure.Repositories;
@@ -18,13 +18,14 @@ using Infrastructure.Repositories;
 var builder = WebApplication.CreateBuilder(args);
 
 // listen on port 5500 across the environment
-builder.WebHost.ConfigureKestrel(options => options.ListenAnyIP(5500));
+builder.WebHost.ConfigureKestrel(x => x.ListenAnyIP(5500));
 
-// add application settings
+// add all appsettings.json sections as IOptions<T>
 builder.Services.AddOptions<WorkspaceSettings>();
 
-// add necessary services to the services container
-builder.Services.AddDbContext<ChatDbContext>(options => options.UseSqlite("Data Source=chat.db"))
+// add core application services to the services container
+builder.Services.AddSingleton(_ => new ChatClientBuilder(HttpClients.ApiClient).UseFunctionInvocation().Build())
+    .AddDbContext<ChatDbContext>(x => x.UseSqlite(builder.Configuration.GetConnectionString("Sqlite")))
     .AddScoped<IConversationRepository, ConversationRepository>()
     .AddScoped<IWorkspaceRepository, WorkspaceRepository>()
     .AddScoped<IWorkspaceFileSystem, WorkspaceFileSystem>()
@@ -32,19 +33,15 @@ builder.Services.AddDbContext<ChatDbContext>(options => options.UseSqlite("Data 
     .AddScoped<IWorkspaceService, WorkspaceService>()
     .AddScoped<ISpeakingService, SpeakingService>()
     .AddScoped<IContextFactory, ContextFactory>()
+    .AddScoped<IAgentRunner, AgentRunner>()
     .AddScoped<IChatService, ChatService>()
-    .AddScoped<ListFilesTool>()
-    .AddScoped<ReadFileTool>()
-    .AddScoped<WriteFileTool>()
     .AddScoped<SearchFilesTool>()
     .AddScoped<SearchTextTool>()
     .AddScoped<RunCommandTool>()
+    .AddScoped<WriteFileTool>()
+    .AddScoped<ListFilesTool>()
+    .AddScoped<ReadFileTool>()
     .AddScoped<ToolRegistry>()
-    .AddSingleton<IChatClient>(_ => new OllamaApiClient(new HttpClient()
-    {
-        BaseAddress = new Uri(LanguageModelConstants.LanguageModelAddress),
-        Timeout = TimeSpan.FromMinutes(20),
-    }, LanguageModelConstants.FableModel))
     .AddOpenApi();
 
 // build the web application
@@ -61,7 +58,4 @@ if (app.Environment.IsDevelopment())
 }
 
 // map all the endpoints, then run the web application
-await app.MapConversationEndpoints()
-    .MapChatEndpoints()
-    .MapWorkspaceEndpoints()
-    .RunAsync();
+await app.MapEndpoints().RunAsync();

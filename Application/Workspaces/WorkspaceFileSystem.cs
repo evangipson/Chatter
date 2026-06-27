@@ -15,7 +15,7 @@ public class WorkspaceFileSystem(IWorkspaceRepository repo, ILogger<WorkspaceFil
         List<string> files = [..Directory
             .EnumerateFiles(workspace.RootPath, "*", SearchOption.AllDirectories)
             .Select(path => Path.GetRelativePath(workspace.RootPath, path))];
-        logger.LogInformation("{LogPrefix} got {FileCount} files for workspace \"{WorkspaceId}\".", $"[{nameof(WorkspaceFileSystem)}.{nameof(GetFilesAsync)}]:", files.Count, workspaceId);
+        logger.LogInformation($"[{nameof(WorkspaceFileSystem)}.{nameof(GetFilesAsync)}]: got {files.Count} files for workspace \"{workspaceId}\".");
         return files;
     }
 
