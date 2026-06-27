@@ -43,8 +43,8 @@ builder.Services.AddDbContext<ChatDbContext>(options => options.UseSqlite("Data 
     .AddSingleton<IChatClient>(_ => new OllamaApiClient(new HttpClient()
     {
         BaseAddress = new Uri(LanguageModelConstants.LanguageModelAddress),
-        Timeout = TimeSpan.FromMinutes(20)
-    }, LanguageModelConstants.Qwen36Model))
+        Timeout = TimeSpan.FromMinutes(20),
+    }, LanguageModelConstants.FableModel))
     .AddOpenApi();
 
 // build the web application
