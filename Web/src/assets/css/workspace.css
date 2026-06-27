@@ -18,47 +18,15 @@
     min-width: calc(100% - var(--sidebar-width));
 }
 
-.chatter__tree {
-    display: flex;
-    flex-flow: column nowrap;
-    padding: var(--spacing-small) 2px;
-    text-align: left;
-    min-height: 100%;
+.chatter__editor-pane .chatter__container {
+    height: 100%;
+    border-top: 1px solid var(--color-ui-dark);
+    padding: var(--spacing-small);
+    gap: 0;
     box-sizing: border-box;
 }
 
-.chatter__tree-item {
-    align-items: center;
-    cursor: pointer;
-    user-select: none;
-    color: var(--color-ui-light);
-    font-size: var(--font-size-medium);
-    padding-top: 6px;
-    white-space: nowrap;
-    line-height: 1;
-}
-
-.chatter__tree-item--active {
-    font-weight: bold;
-}
-
-.chatter__tree-item svg {
-    display: inline-flex;
-    height: 16px;
-    width: 16px;
-}
-
-.chatter__tree-chevron,
-.chatter__file-icon {
-    margin-right: 5px;
-    vertical-align: middle;
-}
-
-.chatter__tree-chevron svg {
-    rotate: 90deg;
-    transition: rotate 0.175s ease;
-}
-
-.chatter__tree-item--collapsed .chatter__tree-chevron svg {
-    rotate: 0deg;
+.chatter__editor-pane .chatter__composer {
+    margin-top: var(--spacing-small);
+    margin-block-start: auto;
 }

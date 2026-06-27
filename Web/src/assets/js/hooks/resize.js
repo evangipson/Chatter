@@ -1,14 +1,18 @@
 import { useEffect, useState } from 'react';
 
+/** The minimum amount of pixels the resizer takes up. */
+const minResizerPixels = 6;
+
 /**
  * A hook that provides all resize functionality for a resizable pane.
  * @param {boolean} isHorizontal A flag that, when `true`, denotes a horizontal pane layout.
+ * @param {boolean} resizeSecond A flat that, when `true`, denotes the first pane is static.
  * @param {number} initialSize The initial size of the resizable pane, defaults to `300`.
  * @param {number} min The minimum size of the resiable pane, defaults to `150`.
  * @param {number} max The maximum size of the resiable pane, defaults to `600`.
  * @param {string} storageKey The key for `localStorage` to persist pane sizes.
  */
-export const useResize = (isHorizontal, initialSize = 300, min = 150, max = 600, storageKey) => {
+export const useResize = (isHorizontal, resizeSecond = false, initialSize = 300, min = 150, max = 600, storageKey) => {
     let frame = -1;
     let ignored = false;
     const [size, setSize] = useState(() => {
@@ -27,8 +31,12 @@ export const useResize = (isHorizontal, initialSize = 300, min = 150, max = 600,
      * @param {PointerEvent} pointerEvent The broadcasted event as a result of a pointer move.
      */
     const onMouseMove = pointerEvent => {
-        const newSize = isHorizontal ? pointerEvent.clientX : pointerEvent.clientY;
-        const clampedNewSize = Math.max(min, Math.min(max, newSize));
+        let newSize = isHorizontal ? pointerEvent.clientX : pointerEvent.clientY;
+        if (!isHorizontal && resizeSecond) {
+            newSize = document.body.clientHeight - pointerEvent.clientY;
+        }
+        const clampedMax = Math.min(max, document.body.clientHeight - minResizerPixels);
+        const clampedNewSize = Math.max(min, Math.min(clampedMax, newSize));
         cancelAnimationFrame(frame);
         frame = requestAnimationFrame(() => setSize(clampedNewSize));
     };

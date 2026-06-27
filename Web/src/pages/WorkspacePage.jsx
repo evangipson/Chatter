@@ -33,11 +33,11 @@ export default function Workspace() {
             <div className='chatter__file-explorer'>
                 <FileExplorer workspaceId={id} onOpenFile={workspace.openFile} collapsedFolders={collapsedFolders} onToggleFolder={toggleFolder} />
             </div>
-            <SplitPane direction='vertical' resizeSecond={true} storageKey='editor-chat' initialSize={200} min={100} max={500}>
+            <SplitPane className='chatter__editor-pane' direction='vertical' resizeSecond={true} storageKey='editor-chat' initialSize={92} min={92} max={9999}>
                 <div className='chatter__workspace-editor'>
                     <EditorArea workspace={workspace} />
                 </div>
-                <ChatWindow workspaceId={id} conversationId={conversationId} />
+                {conversationId && (<ChatWindow workspaceId={id} conversationId={conversationId} />)}
             </SplitPane>
         </SplitPane>
     );

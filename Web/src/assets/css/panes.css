@@ -15,10 +15,6 @@
     scroll-behavior: smooth;
 }
 
-.chatter__split-pane-priority ~ .chatter__split-pane-resizable {
-    flex: 1;
-}
-
 .chatter__split-pane-priority {
     display: flex;
     flex-flow: column nowrap;
