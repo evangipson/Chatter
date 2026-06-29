@@ -1,13 +1,16 @@
-﻿using Application.Workspaces;
+﻿using Application.Extensions;
+using Application.Workspaces;
 using Domain.Models;
 
 namespace Application.Tool;
 
-public sealed class ReadFileTool(IWorkspaceFileSystem fs)
+/// <inheritdoc cref="ITool"/>
+public sealed class ReadFileTool(IWorkspaceFileSystem fs) : ITool
 {
-    public const string Name = "read_file";
+    public string Name => "read_file";
 
-    public const string Description = "Reads a file.";
+    public string Description => "Reads a file.";
 
-    public async Task<string> Execute(ToolContext context, string path) => await fs.ReadFileAsync(context.WorkspaceId, path);
+    public Task<string> ExecuteAsync(ToolContext context, IDictionary<string, object?>? arguments)
+        => fs.ReadFileAsync(context.WorkspaceId, arguments.TryGetJsonArg("path"));
 }

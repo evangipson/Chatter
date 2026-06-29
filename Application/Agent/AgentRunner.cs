@@ -18,7 +18,7 @@ public sealed class AgentRunner(ILogger<AgentRunner> logger, IChatClient chatCli
         logger.LogInformation("starting agent runner (started at {AgentStartTime}).", agentStartTime);
 
         // hook up all registered tools to the agent
-        var tools = toolRegistry.CreateFunctions(context);
+        var tools = ToolFactory.Create(toolRegistry.Tools, context);
         ChatOptions options = new() { Tools = [.. tools] };
         logger.LogInformation("{ToolCount} tools are registered to the agent.", tools.Count);
 
@@ -46,12 +46,17 @@ public sealed class AgentRunner(ILogger<AgentRunner> logger, IChatClient chatCli
             }
 
             // execute each tool in the response and add the results to the agent response and chat messages
-            foreach (var toolResultTask in toolCalls.Select(x => GetToolCallResult(tools, x)))
+            foreach (var call in toolCalls)
             {
-                var toolResult = await toolResultTask;
-                logger.LogInformation("tool \"{ToolName}\" result\n{ToolResult}\n", toolResult.ToolName, toolResult.Result);
-                toolInvocations.Add(toolResult);
-                messages.Add(new(ChatRole.Tool, toolResult.Result));
+                if (!toolRegistry.TryGet(call.Name, out var tool))
+                {
+                    throw new InvalidOperationException($"Unknown tool '{call.Name}'.");
+                }
+
+                var started = DateTime.UtcNow;
+                var result = await tool.ExecuteAsync(context, call.Arguments);
+                toolInvocations.Add(new(call.Name, DateTime.UtcNow - started, result?.ToString(), call.Arguments?.ToString(), true));
+                messages.Add(new(ChatRole.Tool, result?.ToString() ?? ""));
             }
         }
 
@@ -64,12 +69,5 @@ public sealed class AgentRunner(ILogger<AgentRunner> logger, IChatClient chatCli
     {
         toolCalls = [..response?.Messages?.SelectMany(x => x.Contents).OfType<FunctionCallContent>() ?? []];
         return toolCalls.Count > 0;
-    }
-
-    private static async Task<ToolInvocation> GetToolCallResult(IReadOnlyList<AIFunction> tools, FunctionCallContent toolCall)
-    {
-        var toolStartTime = DateTime.UtcNow;
-        var result = await tools.First(t => t.Name == toolCall.Name).InvokeAsync(new(toolCall.Arguments));
-        return new(toolCall.Name, DateTime.UtcNow - toolStartTime, result?.ToString(), string.Join(", ", toolCall.Arguments?.Keys ?? []), result != null);
     }
 }

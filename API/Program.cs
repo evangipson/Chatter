@@ -24,7 +24,7 @@ builder.WebHost.ConfigureKestrel(x => x.ListenAnyIP(5500));
 builder.Services.AddOptions<WorkspaceSettings>();
 
 // add core application services to the services container
-builder.Services.AddSingleton(_ => new ChatClientBuilder(HttpClients.ApiClient).UseFunctionInvocation().Build())
+builder.Services.AddSingleton<IChatClient>(_ => HttpClients.ApiClient)
     .AddDbContext<ChatDbContext>(x => x.UseSqlite(builder.Configuration.GetConnectionString("Sqlite")))
     .AddScoped<IConversationRepository, ConversationRepository>()
     .AddScoped<IWorkspaceRepository, WorkspaceRepository>()
@@ -35,12 +35,12 @@ builder.Services.AddSingleton(_ => new ChatClientBuilder(HttpClients.ApiClient).
     .AddScoped<IContextFactory, ContextFactory>()
     .AddScoped<IAgentRunner, AgentRunner>()
     .AddScoped<IChatService, ChatService>()
-    .AddScoped<SearchFilesTool>()
-    .AddScoped<SearchTextTool>()
-    .AddScoped<RunCommandTool>()
-    .AddScoped<WriteFileTool>()
-    .AddScoped<ListFilesTool>()
-    .AddScoped<ReadFileTool>()
+    .AddScoped<ITool, SearchFilesTool>()
+    .AddScoped<ITool, SearchTextTool>()
+    .AddScoped<ITool, RunCommandTool>()
+    .AddScoped<ITool, WriteFileTool>()
+    .AddScoped<ITool, ListFilesTool>()
+    .AddScoped<ITool, ReadFileTool>()
     .AddScoped<ToolRegistry>()
     .AddOpenApi();
 

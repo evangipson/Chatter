@@ -1,13 +1,17 @@
-﻿using Application.Workspaces;
+﻿using System.Text.Json;
+using Application.Workspaces;
+using Domain.Constants;
 using Domain.Models;
 
 namespace Application.Tool;
 
-public sealed class ListFilesTool(IWorkspaceFileSystem fs)
+/// <inheritdoc cref="ITool"/>
+public sealed class ListFilesTool(IWorkspaceFileSystem fs) : ITool
 {
-    public const string Name = "list_files";
+    public string Name => "list_files";
 
-    public const string Description = "Lists files.";
+    public string Description => "Lists files.";
 
-    public async Task<List<string>> Execute(ToolContext context) => await fs.GetFilesAsync(context.WorkspaceId);
+    public async Task<string> ExecuteAsync(ToolContext context, IDictionary<string, object?>? _)
+        => JsonSerializer.Serialize(await fs.GetFilesAsync(context.WorkspaceId), JsonConstants.DefaultSerializerOptions);
 }

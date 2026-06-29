@@ -1,26 +1,32 @@
-﻿using Domain.Models;
-using Microsoft.Extensions.AI;
-
-namespace Application.Tool;
+﻿namespace Application.Tool;
 
 /// <summary>
 /// A registry of all tools for the application.
 /// </summary>
 /// <param name="tools">A collection of all <see cref="ITool"/>.</param>
-public sealed class ToolRegistry(ReadFileTool readFile, ListFilesTool listFiles, SearchFilesTool searchFiles, SearchTextTool searchText, WriteFileTool writeFile, RunCommandTool runCommand)
+public sealed class ToolRegistry(IEnumerable<ITool> tools)
 {
+    private readonly Dictionary<string, ITool> _tools = tools.ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
+
     /// <summary>
-    /// Creates a collection of <see cref="AIFunction"/> for all the registered tools.
+    /// All the tools that are registered for the application.
     /// </summary>
-    /// <param name="context">The current tool context.</param>
-    /// <returns>A collection of <see cref="AIFunction"/> for each registered tool.</returns>
-    public IReadOnlyList<AIFunction> CreateFunctions(ToolContext context) =>
-    [
-        AIFunctionFactory.Create((string path) => readFile.Execute(context, path), name: "read_file", description: "Reads the contents of a file in the workspace."),
-        AIFunctionFactory.Create(() => listFiles.Execute(context), name: "list_files", description: "Lists all files in the workspace."),
-        AIFunctionFactory.Create((string pattern) => searchFiles.Execute(context, pattern), name: "search_files", description: "Searches files in the workspace for a text pattern."),
-        AIFunctionFactory.Create((string text) => searchText.Execute(context, text), name: "search_text", description: "Searches for text inside files."),
-        AIFunctionFactory.Create((string path, string contents) => writeFile.Execute(context, path, contents), name: "write_file", description: "Writes a file to the workspace."),
-        AIFunctionFactory.Create((string command, string args) => runCommand.Execute(context, command, args), name: "run_command", description: "Runs a shell command in the workspace.")
-    ];
+    public IReadOnlyCollection<ITool> Tools => _tools.Values;
+
+    /// <summary>
+    /// Gets a tool by <paramref name="name"/>.
+    /// </summary>
+    /// <param name="name">The name of the tool to get.</param>
+    /// <returns>The <see cref="ITool"/> if it was found, defaults to <see langword="null"/>.</returns>
+    public ITool? Get(string name) => _tools.TryGetValue(name, out var tool)
+        ? tool
+        : null;
+
+    /// <summary>
+    /// Attempts to find a tool by <paramref name="name"/>.
+    /// </summary>
+    /// <param name="name">The name of the tool to get.</param>
+    /// <param name="tool">The tool that was found.</param>
+    /// <returns>A flag that, when <see langword="true"/>, indicates the tool was found.</returns>
+    public bool TryGet(string name, out ITool tool) => _tools.TryGetValue(name, out tool!);
 }

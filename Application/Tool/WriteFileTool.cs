@@ -1,17 +1,20 @@
-﻿using Application.Workspaces;
+﻿using Application.Extensions;
+using Application.Workspaces;
 using Domain.Models;
 
 namespace Application.Tool;
 
-public sealed class WriteFileTool(IWorkspaceFileSystem fs)
+/// <inheritdoc cref="ITool"/>
+public sealed class WriteFileTool(IWorkspaceFileSystem fs) : ITool
 {
-    public const string Name = "write_file";
+    public string Name => "write_file";
 
-    public const string Description = "Writes to a file.";
+    public string Description => "Writes to a file.";
 
-    public async Task<string> Execute(ToolContext context, string path, string contents)
+    public async Task<string> ExecuteAsync(ToolContext context, IDictionary<string, object?>? arguments)
     {
-        await fs.WriteFileAsync(context.WorkspaceId, path, contents);
+        var path = arguments.TryGetJsonArg("path");
+        await fs.WriteFileAsync(context.WorkspaceId, path, arguments.TryGetJsonArg("contents"));
         return $"The file \"{path}\" was written to successfully.";
     }
 }

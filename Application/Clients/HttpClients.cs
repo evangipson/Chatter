@@ -9,7 +9,7 @@ namespace Application.Clients;
 public static class HttpClients
 {
     private static readonly Uri _baseAddress = new(LanguageModelConstants.LanguageModelAddress);
-    private static readonly HttpClient _httpClient = new() { BaseAddress = _baseAddress };
+    private static readonly HttpClient _httpClient = new() { BaseAddress = _baseAddress, Timeout = TimeSpan.FromMinutes(5) };
 
     /// <summary>
     /// The application's API client.
@@ -17,5 +17,5 @@ public static class HttpClients
     /// Responsible for local communication with Ollama.
     /// </para>
     /// </summary>
-    public static readonly OllamaApiClient ApiClient = new(_httpClient, LanguageModelConstants.FableModel);
+    public static readonly OllamaApiClient ApiClient = new(_httpClient, LanguageModelConstants.Qwen36Model);
 }

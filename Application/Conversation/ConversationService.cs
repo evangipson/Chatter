@@ -89,13 +89,13 @@ public class ConversationService(IChatClient chatClient, IConversationRepository
     {
         // get all conversation messages, early exit if there aren't enough messages for a summary
         var messages = await conversationRepository.GetMessagesAsync(conversationId);
-        if (messages.Count < ConversationConstants.ContextWindowSize)
+        if (messages.Count < ConversationConstants.SummaryWindowSize)
         {
             return;
         }
 
         // generate a summary for the conversation, early exit if one isn't created
-        var summary = await GenerateSummaryAsync([..messages.Take(messages.Count - ConversationConstants.ContextWindowSize)]);
+        var summary = await GenerateSummaryAsync([..messages.Take(messages.Count - ConversationConstants.SummaryWindowSize)]);
         if (string.IsNullOrWhiteSpace(summary))
         {
             return;
