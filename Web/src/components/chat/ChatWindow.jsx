@@ -87,21 +87,21 @@ export default function ChatWindow({workspaceId = GlobalWorkspaceId, conversatio
         const last = updated.at(-1);
         switch (event.type) {
             case 'agent_started':
-                updated[updated.length - 1] = {...last, agent: {text: '🤖 agent thinking...', thinking: true}};
+                updated[updated.length - 1] = {...last, agent: {text: '🤖 agent thinking...', thinking: true, tools: []}};
                 break;
             case 'tool_started':
-                updated[updated.length - 1] = {...last, agent: {...last.agent, tools: [...last.agent.tools, {id: crypto.randomUUID(), name: event.toolName, status: 'running'}]}};
+                updated[updated.length - 1] = {...last, agent: {...last.agent, tools: [...(last.agent.tools ?? []), {id: uuidv4(), name: event.toolName, status: 'running'}]}};
                 break;
             case 'tool_finished':
-                const tools = [...last.tools];
+                const tools = [...(last.agent.tools ?? [])];
                 tools[tools.length - 1] = {...tools.at(-1), status: 'finished', duration: event.duration};
-                updated[updated.length - 1] = {...last, tools};
+                updated[updated.length - 1] = {...last, agent: {...last.agent, tools}};
                 break;
             case 'agent_finished':
-                updated[updated.length - 1] = {...last, agent: {text: `🤖 agent finished (${event.duration} ms)}`, thinking: false}};
+                updated[updated.length - 1] = {...last, agent: {...last.agent, text: `🤖 agent finished (${event.duration} ms)}`, thinking: false}};
                 break;
             case 'assistant_started':
-                updated.push({id: crypto.randomUUID(), role: 'bot', text: ''});
+                updated.push({id: uuidv4(), role: 'bot', text: ''});
                 break;
             case 'assistant_token':
                 updated[updated.length - 1] = {...last, text: last.text + event.text};
@@ -125,8 +125,8 @@ export default function ChatWindow({workspaceId = GlobalWorkspaceId, conversatio
 
         // create a message for the user and add a placeholder message for the agent's response
         const hasMessages = messages.length > 0;
-        const userMessage = { id: uuidv4(), role: 'user', text: input };
-        const agentMessage = { id: uuidv4(), role: 'agent', agent: {thinking: false, duration: null, tools: []}, text: ''};
+        const userMessage = {id: uuidv4(), role: 'user', text: input};
+        const agentMessage = {id: uuidv4(), role: 'agent', text: '', agent: {thinking: false, duration: null, tools: []}};
         setMessages(prev => [...prev, userMessage, agentMessage]);
 
         // clear current input state, set streaming state to true
@@ -164,7 +164,7 @@ export default function ChatWindow({workspaceId = GlobalWorkspaceId, conversatio
                 }
 
                 // increment the buffer with the decoded value from the server
-                buffer += decoder.decode(value, { stream: true });
+                buffer += decoder.decode(value, {stream: true});
 
                 // add the next line to the buffer
                 const lines = buffer.split('\n');

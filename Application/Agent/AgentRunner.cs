@@ -15,9 +15,13 @@ public sealed class AgentRunner(IChatClient chatClient, ToolRegistry toolRegistr
         var tools = ToolFactory.Create(toolRegistry.Tools, context);
         ChatOptions options = new() { Tools = [.. tools] };
 
+        yield return new AgentStartedEvent();
+        var iteration = 1;
         while (true)
         {
+            Console.WriteLine($"Iteration {iteration++}");
             var response = await chatClient.GetResponseAsync(messages, options);
+            Console.WriteLine("LLM returned.");
             messages.AddRange(response.Messages);
 
             if (!TryGetToolCalls(response, out var toolCalls))

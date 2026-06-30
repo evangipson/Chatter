@@ -5,4 +5,4 @@ namespace Domain.Events;
 /// <summary>
 /// Represents an agent that is starting it's work.
 /// </summary>
-public sealed record AgentStartedEvent() : AgentEvent(EventType: EventConstants.AgentStarted);
+public sealed record AgentStartedEvent() : AgentEvent(Type: EventConstants.AgentStarted);
