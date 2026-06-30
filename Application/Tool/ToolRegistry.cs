@@ -14,15 +14,6 @@ public sealed class ToolRegistry(IEnumerable<ITool> tools)
     public IReadOnlyCollection<ITool> Tools => _tools.Values;
 
     /// <summary>
-    /// Gets a tool by <paramref name="name"/>.
-    /// </summary>
-    /// <param name="name">The name of the tool to get.</param>
-    /// <returns>The <see cref="ITool"/> if it was found, defaults to <see langword="null"/>.</returns>
-    public ITool? Get(string name) => _tools.TryGetValue(name, out var tool)
-        ? tool
-        : null;
-
-    /// <summary>
     /// Attempts to find a tool by <paramref name="name"/>.
     /// </summary>
     /// <param name="name">The name of the tool to get.</param>

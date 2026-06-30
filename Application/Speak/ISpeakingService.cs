@@ -9,11 +9,9 @@ namespace Application.Speak;
 public interface ISpeakingService
 {
     /// <summary>
-    /// Streams a response from a chat client, optionally with text-to-speech.
+    /// Streams a response from a chat client.
     /// </summary>
-    /// <param name="toolContext">The current tool context.</param>
-    /// <param name="context">The conversation context.</param>
-    /// <param name="speak">A flag that, when <see langword="true"/>, denotes the response will be spoken.</param>
-    /// <returns>An asynchronous collection of response tokens from a chat client.</returns>
-    IAsyncEnumerable<string> StreamAndSpeakAsync(ToolContext toolContext, List<ChatMessage> context, bool speak);
+    /// <param name="history">The current conversation history of chat messages.</param>
+    /// <returns>An asynchronous collection of chat response updates from a chat client.</returns>
+    IAsyncEnumerable<ChatResponseUpdate> StreamAsync(List<ChatMessage> history);
 }

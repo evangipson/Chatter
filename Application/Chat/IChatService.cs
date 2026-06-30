@@ -1,4 +1,5 @@
-﻿using Domain.Models;
+﻿using Domain.Events;
+using Domain.Models;
 
 namespace Application.Chat;
 
@@ -12,6 +13,6 @@ public interface IChatService
     /// </summary>
     /// <param name="request">The chat request to respond to.</param>
     /// <param name="speak">A flag that, when <see langword="true"/>, denotes the response will be spoken.</param>
-    /// <returns>An asynchronous collection of response tokens from a chat client.</returns>
-    IAsyncEnumerable<string> RespondAsync(ChatRequest request, bool speak = false);
+    /// <returns>An asynchronous collection of agent events from a chat client.</returns>
+    IAsyncEnumerable<AgentEvent> RespondAsync(ChatRequest request, bool speak = false);
 }

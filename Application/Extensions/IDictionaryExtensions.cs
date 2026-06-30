@@ -19,16 +19,9 @@ public static class IDictionaryExtensions
         /// </returns>
         public string TryGetJsonArg(string key)
         {
-            Console.WriteLine($"attempting to get the \"{key}\" value from \"args\"...");
-            foreach(var kv in kvp ?? new Dictionary<string, object?>())
-            {
-                Console.WriteLine($"{kv.Key}: {kv.Value}");
-            }
-
             // get the "args" element, early return empty string if there isn't one
             if(kvp?.TryGetValue("args", out var arguments) != true)
             {
-                Console.WriteLine("no \"args\" element found, returning empty string.");
                 return string.Empty;
             }
 
@@ -36,20 +29,14 @@ public static class IDictionaryExtensions
             var jsonArguments = arguments?.ToString();
             if (string.IsNullOrWhiteSpace(jsonArguments))
             {
-                Console.WriteLine("null or whitespace \"args\" element found, returning empty string.");
                 return string.Empty;
             }
 
             // get the named value from "args", early return empty string if it cannot be found
             var deserializedArguments = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonArguments, JsonConstants.DefaultSerializerOptions);
-            if (deserializedArguments?.TryGetValue(key, out var value) != true || string.IsNullOrWhiteSpace(value))
-            {
-                Console.WriteLine($"no \"{key}\" element found inside of \"args\", returning empty string.");
-                return string.Empty;
-            }
-
-            Console.WriteLine($"found \"{value}\" from \"{key}\" element inside of \"args\".");
-            return value;
+            return deserializedArguments?.TryGetValue(key, out var value) != true || string.IsNullOrWhiteSpace(value)
+                ? string.Empty
+                : value;
         }
     }
 }

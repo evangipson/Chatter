@@ -1,8 +1,9 @@
 ﻿using System.Net.Mime;
-using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 using Application.Chat;
 using Application.Repositories;
 using Domain.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace API.Endpoints;
 
@@ -11,6 +12,8 @@ namespace API.Endpoints;
 /// </summary>
 internal static class ChatEndpoints
 {
+    private const string _ndJsonContentType = "application/x-ndjson";
+
     extension(WebApplication app)
     {
         /// <summary>
@@ -30,12 +33,15 @@ internal static class ChatEndpoints
 
             routeGroup.MapPost("/respond", async (HttpContext context, [FromBody] ChatRequest request, [FromServices] IChatService chatService) =>
             {
-                await foreach (var token in chatService.RespondAsync(request))
+                context.Response.ContentType = _ndJsonContentType;
+                await foreach (var agentEvent in chatService.RespondAsync(request))
                 {
-                    await context.Response.WriteAsync(token);
+                    var json = JsonSerializer.Serialize(agentEvent, JsonSerializerOptions.Web);
+                    await context.Response.WriteAsync(json);
+                    await context.Response.WriteAsync("\n");
                     await context.Response.Body.FlushAsync();
                 }
-            }).Produces<IAsyncEnumerable<string>>(StatusCodes.Status200OK, MediaTypeNames.Text.Plain).WithRequestTimeout(TimeSpan.FromMinutes(10));
+            }).Produces<IAsyncEnumerable<string>>(StatusCodes.Status200OK, _ndJsonContentType).WithRequestTimeout(TimeSpan.FromMinutes(10));
 
             return app;
         }
