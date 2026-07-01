@@ -6,6 +6,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { v4 as uuidv4 } from 'uuid';
 import { GlobalWorkspaceId } from '../../assets/js/constants/workspace';
+import { ChatFactory } from '../../assets/js/factories/chat-factory';
 import { WaitingChatBubble } from './WaitingChatBubble';
 import { ChatBubble } from './ChatBubble';
 import { ArrowIcon } from '../icons/ArrowIcon';
@@ -90,7 +91,8 @@ export default function ChatWindow({workspaceId = GlobalWorkspaceId, conversatio
                 updated[updated.length - 1] = {...last, agent: {text: '🤖 agent thinking...', thinking: true, tools: []}};
                 break;
             case 'tool_started':
-                updated[updated.length - 1] = {...last, agent: {...last.agent, tools: [...(last.agent.tools ?? []), {id: uuidv4(), name: event.toolName, status: 'running'}]}};
+                const currentAgent = last.agent ?? { tools: [] };
+                updated[updated.length - 1] = {...last, agent: {...currentAgent, tools: [...(currentAgent.tools ?? []), { id: uuidv4(), name: event.toolName, status: 'running' }]}};
                 break;
             case 'tool_finished':
                 const tools = [...(last.agent.tools ?? [])];
@@ -101,7 +103,6 @@ export default function ChatWindow({workspaceId = GlobalWorkspaceId, conversatio
                 updated[updated.length - 1] = {...last, agent: {...last.agent, text: `🤖 agent finished (${event.duration} ms)}`, thinking: false}};
                 break;
             case 'assistant_started':
-                updated.push({id: uuidv4(), role: 'bot', text: ''});
                 break;
             case 'assistant_token':
                 updated[updated.length - 1] = {...last, text: last.text + event.text};
@@ -125,14 +126,13 @@ export default function ChatWindow({workspaceId = GlobalWorkspaceId, conversatio
 
         // create a message for the user and add a placeholder message for the agent's response
         const hasMessages = messages.length > 0;
-        const userMessage = {id: uuidv4(), role: 'user', text: input};
-        const agentMessage = {id: uuidv4(), role: 'agent', text: '', agent: {thinking: false, duration: null, tools: []}};
-        setMessages(prev => [...prev, userMessage, agentMessage]);
+        setMessages(prev => [...prev, ChatFactory.createUserMessage(input), ChatFactory.createAgentMessage()]);
 
         // clear current input state, set streaming state to true
         setInput('');
         setIsStreaming(true);
 
+        let buffer = '';
         try {
             // create a request containing the user's message to send to the API
             const request = hasMessages
@@ -152,30 +152,37 @@ export default function ChatWindow({workspaceId = GlobalWorkspaceId, conversatio
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
 
-            // go through all the NDJSON returned by the API
             let buffer = '';
             while (true) {
-                // read the next token, and if the stream has ended end the loop
                 const { value, done } = await reader.read();
-
-                // if the stream has ended, end the loop
                 if (done) {
                     break;
                 }
 
-                // increment the buffer with the decoded value from the server
-                buffer += decoder.decode(value, {stream: true});
-
-                // add the next line to the buffer
+                buffer += decoder.decode(value, { stream: true });
                 const lines = buffer.split('\n');
-                buffer = lines.pop();
+                buffer = lines.pop() ?? '';
                 for (const line of lines) {
                     if (!line.trim()) {
                         continue;
                     }
-                    const event = JSON.parse(line);
-                    // update the messages state
-                    setMessages(previous => addAgentEvent(previous, event));
+                    try {
+                        const event = JSON.parse(line);
+                        setMessages(prev => addAgentEvent(prev, event));
+                    } catch (e) {
+                        console.error("Bad NDJSON:", line, e);
+                    }
+                }
+            }
+
+            // parse any final line after EOF
+            buffer += decoder.decode();
+            if (buffer.trim()) {
+                try {
+                    const event = JSON.parse(buffer);
+                    setMessages(prev => addAgentEvent(prev, event));
+                } catch (e) {
+                    console.error("Bad final NDJSON:", buffer, e);
                 }
             }
 
@@ -183,9 +190,7 @@ export default function ChatWindow({workspaceId = GlobalWorkspaceId, conversatio
             setIsStreaming(false);
 
             // run the `onConversationUpdated` callback to update higher-order components
-            if (onConversationUpdated) {
-                await onConversationUpdated();
-            }
+            !!onConversationUpdated && (onConversationUpdated());
         } catch (error) {
             console.error('Streaming error:', error);
         }
@@ -195,13 +200,19 @@ export default function ChatWindow({workspaceId = GlobalWorkspaceId, conversatio
         <div className='chatter__container'>
             {!!messages.length && 
                 <div className='chatter__chat'>
-                    {messages.map(message => {
-                        switch (message.role) {
-                            case 'user': return (<ChatBubble role='user' text={message.text} />);
-                            case 'agent': return (<ChatBubble role='agent' text={message.text} />);
-                            case 'assistant': return (<ChatBubble role='bot' text={message.text} />);
-                        }
-                    })}
+                    {messages.map(message => (
+                        <div key={message.id}>
+                            <ChatBubble key={message.id} role={message.role} text={message.text} />
+                            {message.agent && (
+                                <div className='chatter__agent-status'>
+                                    <p>{message.agent.text}</p>
+                                    {message.agent.tools?.map(tool => (
+                                        <span key={tool.id}>{tool.name} ({tool.status})</span>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    ))}
                     <div ref={bottomRef} />
                 </div>
             }

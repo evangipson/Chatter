@@ -195,3 +195,8 @@
 .chatter__container:has(.chatter__workspace) {
     max-width: unset;
 }
+
+.chatter__agent-status {
+    color: var(--color-ui-dark);
+    padding-bottom: var(--spacing);
+}

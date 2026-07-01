@@ -36,8 +36,8 @@ internal static class ChatEndpoints
                 context.Response.ContentType = _ndJsonContentType;
                 await foreach (var agentEvent in chatService.RespondAsync(request))
                 {
-                    var json = JsonSerializer.Serialize(agentEvent, agentEvent.GetType(), JsonSerializerOptions.Web);
-                    await context.Response.WriteAsync(json);
+                    var response = JsonSerializer.Serialize(agentEvent, agentEvent.GetType(), JsonSerializerOptions.Web);
+                    await context.Response.WriteAsync(response);
                     await context.Response.WriteAsync("\n");
                     await context.Response.Body.FlushAsync();
                 }

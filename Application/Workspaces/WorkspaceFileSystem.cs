@@ -24,16 +24,9 @@ public class WorkspaceFileSystem(IWorkspaceRepository repo, ILogger<WorkspaceFil
         logger.LogInformation("{LogPrefix} reading file \"{FilePath}\" for workspace \"{WorkspaceId}\"...", $"[{nameof(WorkspaceFileSystem)}.{nameof(ReadFileAsync)}]:", relativePath, workspaceId);
         var workspace = await GetWorkspaceAsync(workspaceId);
         var fullPath = ResolvePath(workspace, relativePath);
-        try
-        {
-            var readContent = await File.ReadAllTextAsync(fullPath);
-            logger.LogInformation("{LogPrefix} read all {FileContentLength} bytes from file \"{FilePath}\" for workspace \"{WorkspaceId}\".", $"[{nameof(WorkspaceFileSystem)}.{nameof(ReadFileAsync)}]:", readContent.Length, relativePath, workspaceId);
-            return readContent;
-        }
-        catch
-        {
-            return $"[ERROR]: {relativePath} does not exist in the workspace.";
-        }
+        var readContent = await File.ReadAllTextAsync(fullPath);
+        logger.LogInformation("{LogPrefix} read all {FileContentLength} bytes from file \"{FilePath}\" for workspace \"{WorkspaceId}\".", $"[{nameof(WorkspaceFileSystem)}.{nameof(ReadFileAsync)}]:", readContent.Length, relativePath, workspaceId);
+        return readContent;
     }
 
     public async Task<List<string>> SearchFilesAsync(Guid workspaceId, string pattern)

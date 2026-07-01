@@ -11,7 +11,7 @@ public sealed class RunCommandTool(IWorkspaceFileSystem fs) : ITool
 {
     public string Name => "run_command";
 
-    public string Description => "Runs a command.";
+    public string Description => "Runs a command in a sandboxed execution context, typically used for things like building and running tests.";
 
     public async Task<string> ExecuteAsync(ToolContext context, IDictionary<string, object?>? arguments)
     {

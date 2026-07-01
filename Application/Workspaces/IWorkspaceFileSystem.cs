@@ -16,10 +16,14 @@ public interface IWorkspaceFileSystem
 
     /// <summary>
     /// Reads a file from the current workspace.
+    /// <para>
+    /// Will <see langword="throw"/> when the thread it's running on has been canceled.
+    /// </para>
     /// </summary>
     /// <param name="workspaceId">The identifier for the current workspace.</param>
     /// <param name="relativePath">The relative path of the file to read.</param>
     /// <returns>An awaitable task containing content for a file.</returns>
+    /// <exception cref="OperationCanceledException"/>
     Task<string> ReadFileAsync(Guid workspaceId, string relativePath);
 
     /// <summary>
@@ -41,11 +45,15 @@ public interface IWorkspaceFileSystem
 
     /// <summary>
     /// Writes a file to the current workspace.
+    /// <para>
+    /// Will <see langword="throw"/> when the application doesn't have write permission in a workspace.
+    /// </para>
     /// </summary>
     /// <param name="workspaceId">The identifier for the current workspace.</param>
     /// <param name="relativePath">The relative file path for the new file.</param>
     /// <param name="contents">The contents to write to the file.</param>
     /// <returns>An awaitable task.</returns>
+    /// <exception cref="UnauthorizedAccessException"/>
     Task WriteFileAsync(Guid workspaceId, string relativePath, string contents);
 
     /// <summary>
