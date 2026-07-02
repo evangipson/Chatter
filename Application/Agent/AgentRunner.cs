@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.AI;
+using Application.Context;
 using Application.Tool;
+using Domain.Constants;
 using Domain.Events;
 using Domain.Exceptions;
 using Domain.Models;
@@ -7,9 +9,9 @@ using Domain.Models;
 namespace Application.Agent;
 
 /// <inheritdoc cref="IAgentRunner"/>
-public sealed class AgentRunner(IChatClient chatClient, ToolRegistry toolRegistry) : IAgentRunner
+public sealed class AgentRunner(IChatClient chatClient, IContextFactory contextFactory, ToolRegistry toolRegistry) : IAgentRunner
 {
-    public async IAsyncEnumerable<AgentEvent> RunAsync(ToolContext context, List<ChatMessage> history)
+    public async IAsyncEnumerable<AgentEvent> RunAsync(ChatRequest chatRequest)
     {
         // begin the timer for reporting agent run duration
         var started = DateTime.UtcNow;
@@ -17,26 +19,27 @@ public sealed class AgentRunner(IChatClient chatClient, ToolRegistry toolRegistr
         // broacast that the agent has started to the user interface
         yield return new AgentStartedEvent();
 
-        // create a local mutable copy of the chat history
-        var messages = new List<ChatMessage>(history);
-        
-        // hook up the registered tools to the agent using chat options
-        var tools = ToolFactory.Create(toolRegistry.Tools, context);
+        // create a local mutable copy of the optimized conversation context to fill up and broadcast back when the agent is finished
+        List<ChatMessage> agentMessages = [.. await contextFactory.CreateAsync(chatRequest.ConversationId, chatRequest)];
+
+        // create a fresh tool context and hook up the registered tools to the agent
+        var toolContext = contextFactory.CreateToolContext(chatRequest.ConversationId, chatRequest.WorkspaceId.GetValueOrDefault(WorkspaceConstants.GlobalWorkspaceId));
+        var tools = ToolFactory.Create(toolRegistry.Tools, toolContext);
         ChatOptions options = new() { Tools = [.. tools] };
 
         // while the agent has tools to run for a user's message, iterate and run each tool
         while (true)
         {
-            // get a response from the chat client using the tool chain (i.e.: the "agent")
-            var response = await chatClient.GetResponseAsync(messages, options);
+            // get a response from the chat client using the registered tools using chat options
+            var response = await chatClient.GetResponseAsync(agentMessages, options);
 
             // add the messages that were received into the new local mutable copy of chat history
-            messages.AddRange(response.Messages);
+            agentMessages.AddRange(response.Messages);
 
             // if there are no tool calls, broadcast to the user interface that the agent is done and stop the agent
             if (!TryGetToolCalls(response, out var toolCalls))
             {
-                yield return new AgentFinishedEvent(DateTime.UtcNow - started, messages);
+                yield return new AgentFinishedEvent(DateTime.UtcNow - started, agentMessages);
                 yield break;
             }
 
@@ -46,8 +49,8 @@ public sealed class AgentRunner(IChatClient chatClient, ToolRegistry toolRegistr
                 // try and get the intended tool, stop the chain if a tool is not found
                 if (!toolRegistry.TryGet(call.Name, out var tool))
                 {
-                    messages.Add(new(ChatRole.Tool, $"unknown tool \"{call.Name}\" called."));
-                    yield return new AgentFinishedEvent(DateTime.UtcNow - started, messages);
+                    agentMessages.Add(new(ChatRole.Tool, $"unknown tool \"{call.Name}\" called."));
+                    yield return new AgentFinishedEvent(DateTime.UtcNow - started, agentMessages);
                     yield break;
                 }
 
@@ -59,7 +62,7 @@ public sealed class AgentRunner(IChatClient chatClient, ToolRegistry toolRegistr
                 string? result;
                 try
                 {
-                    result = await tool.ExecuteAsync(context, call.Arguments);
+                    result = await tool.ExecuteAsync(toolContext, call.Arguments);
                 }
                 catch (ToolException toolException)
                 {
@@ -67,7 +70,7 @@ public sealed class AgentRunner(IChatClient chatClient, ToolRegistry toolRegistr
                 }
 
                 // save the new message as chat from the tool
-                messages.Add(new(ChatRole.Tool, result));
+                agentMessages.Add(new(ChatRole.Tool, result));
 
                 // broadcast that a tool has finished to the user interface
                 yield return new ToolFinishedEvent(call.Name, DateTime.UtcNow - toolStarted);

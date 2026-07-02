@@ -1,6 +1,5 @@
 ﻿using Domain.Events;
 using Domain.Models;
-using Microsoft.Extensions.AI;
 
 namespace Application.Agent;
 
@@ -15,8 +14,7 @@ public interface IAgentRunner
     /// Broadcasts agent started, tool started, tool finished, and agent finished events.
     /// </para>
     /// </summary>
-    /// <param name="context">The current context of the toolchain.</param>
-    /// <param name="history">All recent messages in the chat context.</param>
+    /// <param name="chatRequest">The chat request to run the agent for.</param>
     /// <returns>An asynchronous enumerable collection of <see cref="AgentEvent"/>.</returns>
-    IAsyncEnumerable<AgentEvent> RunAsync(ToolContext context, List<ChatMessage> history);
+    IAsyncEnumerable<AgentEvent> RunAsync(ChatRequest chatRequest);
 }

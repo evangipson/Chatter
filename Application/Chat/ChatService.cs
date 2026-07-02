@@ -3,7 +3,6 @@ using Microsoft.Extensions.AI;
 using Application.Agent;
 using Application.Context;
 using Application.Conversation;
-using Application.Speak;
 using Domain.Constants;
 using Domain.Events;
 using Domain.Models;
@@ -11,9 +10,9 @@ using Domain.Models;
 namespace Application.Chat;
 
 /// <inheritdoc cref="IChatService"/>
-public class ChatService(IConversationService conversationService, IContextFactory contextFactory, IAgentRunner agentRunner, ISpeakingService speakingService) : IChatService
+public class ChatService(IConversationService conversationService, IContextFactory contextFactory, IAgentRunner agentRunner, IChatClient chatClient) : IChatService
 {
-    public async IAsyncEnumerable<AgentEvent> RespondAsync(ChatRequest request, bool speak = false)
+    public async IAsyncEnumerable<AgentEvent> RespondAsync(ChatRequest request)
     {
         // if the request has no message, there is nothing to respond to
         if (string.IsNullOrWhiteSpace(request.Message))
@@ -30,13 +29,15 @@ public class ChatService(IConversationService conversationService, IContextFacto
 
         // stream a response to the user's message
         List<ChatMessage>? expandedHistory = null;
-        await foreach (var agentEvent in agentRunner.RunAsync(toolContext, context))
+        await foreach (var agentEvent in agentRunner.RunAsync(request))
         {
+            // if the agent is finished, set the history
             if (agentEvent is AgentFinishedEvent completed)
             {
                 expandedHistory = completed.History;
             }
 
+            // broadcast the agent event from the runner to the user interface
             yield return agentEvent;
         }
 
@@ -49,12 +50,14 @@ public class ChatService(IConversationService conversationService, IContextFacto
         // broadcast that the assistant will start streaming tokens to the user interface
         yield return new AssistantStartedEvent();
 
-        // generate the agent's response in a streaming fashion and broadcast each token
+        // build the final chat response by providing the chat client the context with all tool calls
         StringBuilder finalResponse = new();
-        await foreach (var update in speakingService.StreamAsync(expandedHistory))
+        await foreach (var update in chatClient.GetStreamingResponseAsync(expandedHistory))
         {
             finalResponse.Append(update.Text);
-            yield return new AssistantTokenEvent(Text: update.Text);
+
+            // broadcast the text to the user interface
+            yield return new AssistantTokenEvent(update.Text);
         }
 
         // update the conversation context with the new chat message

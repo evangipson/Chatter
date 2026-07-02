@@ -12,20 +12,32 @@ const createUserMessage = message => ({
 });
 
 /**
+ * Creates an assistant message to display in chat.
+ * @param {string} message The assistant's message, defaults to an empty `string`.
+ * @returns The `new` assistant chat message.
+ */
+const createAssistantMessage = message => ({
+    id: uuidv4(),
+    role: 'assistant',
+    text: message ?? '',
+});
+
+/**
  * Creates an agent message to display in chat.
  * @param {string} message The agent's message, defaults to an empty `string`.
+ * @param {boolean} thinking A flag that, when `true`, denotes the agent is thinking.
  * @returns The `new` agent chat message.
  */
-const createAgentMessage = message => ({
+const createAgentMessage = (message, thinking = false) => ({
     id: uuidv4(),
     role: 'agent',
     text: message ?? '',
     agent: {
-        thinking: false,
+        thinking: thinking ?? false,
         duration: null,
         tools: [],
     },
 });
 
 /** Responsible for providing the means to create chat messages. */
-export const ChatFactory = { createUserMessage, createAgentMessage };
+export const ChatFactory = { createUserMessage, createAssistantMessage, createAgentMessage };
